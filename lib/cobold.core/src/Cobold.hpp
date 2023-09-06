@@ -27,7 +27,9 @@
 
 #include "IComponent.h"
 #include "ComponentExtensions.h"
-#include "BigInt128.h"
+
+// possible link error 
+// #include "BigInt128.h"
 
 #include "ITimeLine.h"
 

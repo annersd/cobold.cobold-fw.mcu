@@ -22,3 +22,8 @@
 #include "Configuration.h"
 
 #include "Application.h"
+
+namespace cobold
+{
+    static const cobold::IApplication *app = new cobold::Application(new cobold::hosting::HostBuilder());
+} // namespace cobold

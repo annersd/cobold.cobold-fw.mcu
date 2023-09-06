@@ -1,3 +1,3 @@
-COMPONENT_ADD_INCLUDEDIRS := lib/cobold.core
-COMPONENT_SRCDIRS := lib/cobold.core
+COMPONENT_ADD_INCLUDEDIRS := src
+COMPONENT_SRCDIRS := src
 CXXFLAGS += -fno-rtti

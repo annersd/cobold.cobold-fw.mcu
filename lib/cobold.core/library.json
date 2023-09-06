@@ -21,5 +21,12 @@
 	    "Arduino-Log" : "https://github.com/thijse/Arduino-Log.git",
         "arduino-libraries/Ethernet": "^2.0.0",
         "ottowinter/ESPAsyncWebServer-esphome": "^3.0.0"
-    }
+    },
+	"export": {
+		"include": [
+			"src",
+			"lib"
+		]
+	}
+
 }

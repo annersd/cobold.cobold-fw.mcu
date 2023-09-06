@@ -25,6 +25,12 @@
 #include "IConfiguration.h"
 #include "Configuration.h"
 
+#include "IComponent.h"
+#include "ComponentExtensions.h"
+#include "BigInt128.h"
+
+#include "ITimeLine.h"
+
 #include "Application.h"
 
 namespace cobold

@@ -4,6 +4,10 @@
 #define COBOLD_CORE_VERSION_MINOR 1
 #define COBOLD_CORE_VERSION_PATCH 0
 
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include <ArduinoLog.h>
+
 #include "Logger.h"
 #include "IApplication.h"
 #include "ServiceCollection.h"

@@ -1,6 +1,5 @@
-#include <Arduino.h>
-#include "CoboldCore.hpp"
 
+#include "Cobold.hpp"
 
 void setup() {
   // put your setup code here, to run once:

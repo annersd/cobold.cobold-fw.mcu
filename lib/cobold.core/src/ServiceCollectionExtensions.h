@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cobold.hpp"
-
 namespace cobold
 {
     namespace services
@@ -21,7 +19,7 @@ namespace cobold
             static std::vector<TServiceType *> GetServices(ServiceCollection *serviceCollection)
             {
                 std::vector<TServiceType *> servicesList;
-                ILogger *logger = serviceCollection->getService<ILogger>();
+                Logger *logger = serviceCollection->getService<Logger>();
 
                 // Check the existing services map
                 for (auto it = serviceCollection->services.begin(); it != serviceCollection->services.end(); ++it)

@@ -25,5 +25,5 @@
 
 namespace cobold
 {
-    static const cobold::IApplication *app = new cobold::Application(new cobold::hosting::HostBuilder());
+    static cobold::IApplication *app = new cobold::Application(new cobold::hosting::HostBuilder());
 } // namespace cobold

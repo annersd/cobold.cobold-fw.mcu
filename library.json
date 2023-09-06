@@ -1,0 +1,25 @@
+{
+	"name": "Cobold Framework",
+	"keywords": "ESP",
+	"description": "ESP Framework for Arduino",
+	"version": "1.0.0",
+	"authors": {
+		"name": "Annersd",
+		"url": "https://github.com/annersd",
+		"maintainer": true
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/annersd/cobold.cobold-fw.mcu"
+	},
+	"homepage": "https://github.com/annersd/cobold.cobold-fw.mcu/",
+	"frameworks": ["arduino"],
+	"platforms": ["espressif32", "espressif8266"],
+    "license": "MIT",
+    "dependencies": {
+        "bblanchon/ArduinoJson": "^6.21.3",
+	    "Arduino-Log" : "https://github.com/thijse/Arduino-Log.git",
+        "arduino-libraries/Ethernet": "^2.0.0",
+        "ottowinter/ESPAsyncWebServer-esphome": "^3.0.0"
+    }
+}

@@ -20,6 +20,6 @@ namespace cobold
         virtual cobold::hosting::IHostBuilder *getHostBuilder() = 0;
     };
 
-    cobold::IApplication *app = nullptr;
+    // cobold::IApplication *app = nullptr;
 } // namespace cobold
 

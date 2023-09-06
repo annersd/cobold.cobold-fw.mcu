@@ -1,13 +1,13 @@
 #include "Application.h"
 
-#include "HostBuilder.h"
+// #include "HostBuilder.h"
 
 namespace cobold
 {
-    Application::Application() 
+    Application::Application(cobold::hosting::IHostBuilder *hostBuilder) 
     {
         // Create an instance of the HostBuilder class
-        cobold::hosting::IHostBuilder *hostBuilder = new cobold::hosting::HostBuilder();
+        this->hostBuilder = hostBuilder;
 
         // Configure the host
 

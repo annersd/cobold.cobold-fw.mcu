@@ -6,13 +6,14 @@
 #include "IHostBuilder.h"
 
 
+
 namespace cobold
 {
 
     class Application : public cobold::IApplication
     {
     public:
-        Application();
+        Application(cobold::hosting::IHostBuilder *hostBuilder);
         ~Application();
 
         void preSetup() ;
@@ -29,5 +30,5 @@ namespace cobold
         cobold::hosting::IHostBuilder *hostBuilder;
     };
 
-    //Application *app = new Application();
+    
 } // namespace cobold

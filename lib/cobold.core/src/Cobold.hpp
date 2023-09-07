@@ -17,8 +17,6 @@
 #include "IHost.h"
 #include "IHostBuilder.h"
 #include "IHostedService.h"
-#include "Host.h"
-#include "HostBuilder.h"
 #include "HostingExtensions.h"
 
 // Include Configuration
@@ -37,5 +35,5 @@
 
 namespace cobold
 {
-    cobold::IApplication *app = new cobold::Application(new cobold::hosting::HostBuilder());
+    extern cobold::IApplication *app;
 } // namespace cobold

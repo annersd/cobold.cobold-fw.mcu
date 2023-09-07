@@ -16,13 +16,14 @@ namespace cobold
         Application(cobold::hosting::IHostBuilder *hostBuilder);
         ~Application();
 
-        void preSetup() ;
-        void setup() ;
-        void loop() ;
+        void preSetup() override;
+        void setup() override;
+        void loop() override;
+        void run() override;
 
-        ServiceCollection *getServices();
-        cobold::hosting::IHost *getHost() ;
-        cobold::hosting::IHostBuilder *getHostBuilder() ;
+        ServiceCollection *getServices() override;
+        cobold::hosting::IHost *getHost() override;
+        cobold::hosting::IHostBuilder *getHostBuilder() override;
 
     private:
         ServiceCollection *services;

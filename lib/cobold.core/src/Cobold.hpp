@@ -33,7 +33,22 @@
 
 #include "Application.h"
 
+#ifdef ESP32
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#elif defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <ESPAsyncTCP.h>
+#endif
+#include <ESPAsyncWebServer.h>
+#include "AsyncJson.h"
+#include "ArduinoJson.h"
+
+#include "Network.h"
+#include "WebServer.h"
+
+
 namespace cobold
 {
-    extern cobold::IApplication *app;
+    cobold::IApplication *app;
 } // namespace cobold

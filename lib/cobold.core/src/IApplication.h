@@ -11,9 +11,29 @@ namespace cobold
     public:
         virtual ~IApplication() {}
 
+        /**
+         * @brief Implement your preSetup logic here
+         * 
+         * @note This method is called before the setup() method
+        */
         virtual void preSetup() = 0;
+
+        /**
+         * @brief Implement your setup logic here
+         * 
+         * @note This method is called after the preSetup() method
+        */
         virtual void setup() = 0;
+
+        /**
+         * @brief The main loop of the application
+        */
         virtual void loop() = 0;
+
+        /**
+         * @brief Run the application
+        */
+        virtual void run() = 0;
 
         virtual ServiceCollection *getServices() = 0;
         virtual cobold::hosting::IHost *getHost() = 0;

@@ -38,6 +38,7 @@ namespace cobold
         virtual ServiceCollection *getServices() = 0;
         virtual cobold::hosting::IHost *getHost() = 0;
         virtual cobold::hosting::IHostBuilder *getHostBuilder() = 0;
+        virtual cobold::configuration::IConfiguration *getAppConfiguration() = 0;
     };
 
     // cobold::IApplication *app = nullptr;

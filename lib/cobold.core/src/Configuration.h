@@ -81,7 +81,7 @@ namespace cobold
             cobold::configuration::IConfiguration *getSection(const std::string &path) override
             {
                 cobold::configuration::IConfiguration *sectionConfig = new Configuration();
-                
+
                 Serial.println("getSection");
 
                 std::string regexPattern = path + "\\..*";
@@ -93,18 +93,25 @@ namespace cobold
                 for (const auto &pair : configMap)
                 {
 
-                           Serial.println(pair.first.c_str());
-                        Serial.println(pair.second.c_str());
+                    Serial.println(pair.first.c_str());
+                    Serial.println(pair.second.c_str());
                     if (std::regex_match(pair.first, pattern))
                     {
                         std::string shortenedKey = pair.first.substr(prefixLength);
-                 
+
                         sectionConfig->setValue(shortenedKey, pair.second);
                     }
                 }
 
-
                 return sectionConfig;
+            }
+
+            void update(IConfiguration *configuration)
+            {
+                for (const auto &pair : configMap)
+                {
+                    configuration->setValue(pair.first, pair.second);
+                }
             }
 
             void loadFromJson(const char *jsonString)
@@ -114,17 +121,46 @@ namespace cobold
 
                 for (const JsonPair &kvp : jsonDoc.as<JsonObject>())
                 {
-
-                    configMap[std::string(kvp.key().c_str())] = kvp.value().as<std::string>();
+                    std::string key = kvp.key().c_str();
+                    std::string value = kvp.value().as<std::string>();
+                    setValue(key, value);
                 }
             }
 
-            void update(IConfiguration *configuration)
+            std::string toJson()
             {
+                StaticJsonDocument<4096> jsonDoc;
+
                 for (const auto &pair : configMap)
                 {
-                    configuration->setValue(pair.first, pair.second);
+                    const std::string &key = pair.first;
+                    const std::string &value = pair.second;
+
+                    // Split the key into segments based on '.'
+                    std::vector<std::string> keySegments;
+                    std::istringstream keyStream(key);
+                    std::string segment;
+
+                    while (std::getline(keyStream, segment, '.'))
+                    {
+                        keySegments.push_back(segment);
+                    }
+
+                    // Create a nested JSON structure based on key segments
+                    JsonObject jsonObject = jsonDoc.to<JsonObject>();
+                    for (size_t i = 0; i < keySegments.size() - 1; ++i)
+                    {
+                        jsonObject = jsonObject.createNestedObject(keySegments[i]);
+                    }
+
+                    // Set the value in the nested JSON structure
+                    jsonObject[keySegments.back()] = value;
                 }
+
+                std::string jsonString;
+                serializeJson(jsonDoc, jsonString);
+
+                return jsonString;
             }
         };
 

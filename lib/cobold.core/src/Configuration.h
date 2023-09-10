@@ -14,7 +14,7 @@ namespace cobold
     {
         class Configuration : public cobold::configuration::IConfiguration
         {
-        private:
+        protected:
             std::map<std::string, std::string> configMap;
 
         public:
@@ -31,7 +31,7 @@ namespace cobold
                 }
                 else
                 {
-                    return "";
+                    return "n/a";
                 }
             }
 
@@ -81,6 +81,8 @@ namespace cobold
             cobold::configuration::IConfiguration *getSection(const std::string &path) override
             {
                 cobold::configuration::IConfiguration *sectionConfig = new Configuration();
+                
+                Serial.println("getSection");
 
                 std::string regexPattern = path + "\\..*";
                 std::regex pattern(regexPattern);
@@ -90,12 +92,17 @@ namespace cobold
 
                 for (const auto &pair : configMap)
                 {
+
+                           Serial.println(pair.first.c_str());
+                        Serial.println(pair.second.c_str());
                     if (std::regex_match(pair.first, pattern))
                     {
                         std::string shortenedKey = pair.first.substr(prefixLength);
+                 
                         sectionConfig->setValue(shortenedKey, pair.second);
                     }
                 }
+
 
                 return sectionConfig;
             }

@@ -31,7 +31,7 @@ namespace cobold
 
         HostBuilder::HostBuilder(/* args */)
         {
-            Serial.begin(115200);
+            // Serial.begin(115200);
             // Initialize with log level and log output.
             Log.begin(LOG_LEVEL_VERBOSE, &Serial);
 

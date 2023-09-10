@@ -5,6 +5,7 @@
 #include "IHost.h"
 #include "IHostBuilder.h"
 #include "IConfiguration.h"
+#include "Logger.h"
 
 
 namespace cobold
@@ -31,6 +32,7 @@ namespace cobold
         cobold::hosting::IHost *host;
         cobold::hosting::IHostBuilder *hostBuilder;
         cobold::configuration::IConfiguration *configuration;
+        Logger *logger;
     };
 
     

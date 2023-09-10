@@ -3,6 +3,9 @@
 #include <functional>
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
+#include "IApplication.h"
+#include "Logger.h"
+#include "ServiceCollection.h"
 
 class Scheduler
 {
@@ -46,8 +49,10 @@ public:
         }
     };
 
-    Scheduler()
+    Scheduler(cobold::IApplication *app )
     {
+        logger = app->getServices()->getService<cobold::Logger>();
+
         // Create a mutex to protect access to the items vector
         itemsMutex = xSemaphoreCreateMutex();
     }
@@ -156,9 +161,11 @@ public:
 private:
     std::vector<SchedulerItem> items;
     SemaphoreHandle_t itemsMutex;
+    cobold::Logger *logger;
 
     void addItem(const SchedulerItem &item)
     {
+        logger->debug("Adding item %s", item.name.c_str());
         // Take the mutex to protect access to the items vector
         xSemaphoreTake(itemsMutex, portMAX_DELAY);
         items.push_back(item);

@@ -17,18 +17,21 @@
 class Network
 {
 private:
-    const char *ssid = nullptr;
-    const char *password = nullptr;
+    String ssid ;
+    String password;
     cobold::Logger *logger;
 
 public:
-    Network(const char *ssid, const char *password);
+    Network(String ssid, String password);
 
     void setup()
     {
         logger->debug("Starting WiFi setup");
 
         WiFi.mode(WIFI_STA);
+
+        logger->debug("Connecting to %s", ssid);
+        logger->debug("Password: %s", password);
         WiFi.begin(ssid, password);
         if (WiFi.waitForConnectResult() != WL_CONNECTED)
         {

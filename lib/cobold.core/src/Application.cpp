@@ -26,19 +26,35 @@ namespace cobold
     void Application::preSetup()
     {
         // Implement your preSetup logic here
-        auto wifiConfig = getAppConfiguration()->getSection("cobold.network.wifi");
-
 
         // Configure the host
 
-
         // Configure the app configuration
-        hostBuilder->configureServices(
-            [](ServiceCollection *services) -> void
+hostBuilder->configureServices(
+            [this](ServiceCollection *services) -> void
             {
+                // Add Application
+                services->addService<IApplication>(this);
+            });
+
+                        auto hb = this;
+
+        hostBuilder->configureServices(
+            [hb](ServiceCollection *services) -> void
+            {
+
                 // Add Network service
-                services->addService<Network>([](ServiceCollection *services) -> void *
-                                               { return new Network("", ""); });
+                services->addService<Network>([hb](ServiceCollection *services) -> void *
+                                              { 
+                    auto wifiSettings = hb->getAppConfiguration()
+                        ->getSection("cobold.network.wifi");
+
+                    Serial.println(wifiSettings->getValue("ssid").c_str());
+                    Serial.println(wifiSettings->getValue("password").c_str());
+
+                    return new Network(
+                         wifiSettings->getValue("ssid").c_str() , 
+                         wifiSettings->getValue("password").c_str() ); });
             });
 
         hostBuilder->configureServices(
@@ -46,16 +62,22 @@ namespace cobold
             {
                 // Add Network service
                 services->addService<WebServer>([](ServiceCollection *services) -> void *
-                                               { return new WebServer(); });
+                                                { return new WebServer(); });
             });
 
-        
+        hostBuilder->configureServices(
+            [this](ServiceCollection *services) -> void
+            {
+                auto app = this;
+                // Add Scheduler service
+                services->addService<Scheduler>([app](ServiceCollection *services) -> void *
+                                                { return new Scheduler(app); });
+            });
     }
 
     void Application::setup()
     {
         // Implement your setup logic here
-
 
         hostBuilder->configureServices(
             [](ServiceCollection *services) -> void
@@ -63,27 +85,43 @@ namespace cobold
                 services->addService<AsyncElegantOtaClass>(&AsyncElegantOTA);
             });
 
-
         // Build the host
         host = hostBuilder->build();
 
-          // Assign server to OTA class
-getServices()->getService<AsyncElegantOtaClass>()
-    ->begin(getServices()->getService<WebServer>()->getServer());
-
         // Get the service collection
         services = host->getServices();
+
+        // Get the logger
+        logger = services->getService<Logger>();
+
+        // Get the Network service
+        logger->info("Setup Network");
+        auto network = getServices()->getService<Network>();
+        network->setup();
+
+        // Assign server to OTA class
+        logger->info("Setup OTA");
+        getServices()->getService<AsyncElegantOtaClass>()->begin(getServices()->getService<WebServer>()->getServer());
+
+        
+        // start the webserver
+        logger->info("Setup Webserver");
+        getServices()->getService<WebServer>()->start();
+        
     }
 
     void Application::loop()
     {
         // Implement your loop logic here
         getServices()->getService<Scheduler>()->run();
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 
     void Application::run()
     {
         // Implement your run logic here
+        logger->info("Starting host");
         host->start();
     }
 

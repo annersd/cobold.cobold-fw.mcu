@@ -182,6 +182,13 @@ namespace cobold
             {
                 return configMap;
             }
+
+            static IConfiguration* fromJson(const char *jsonString)
+            {
+                Configuration *config = new Configuration();
+                config->loadFromJson(jsonString);
+                return config;
+            } 
         };
 
     }

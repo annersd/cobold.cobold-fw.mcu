@@ -82,7 +82,7 @@ namespace cobold
             {
                 cobold::configuration::IConfiguration *sectionConfig = new Configuration();
 
-                Serial.println("getSection");
+                // Serial.println("getSection");
 
                 std::string regexPattern = path + "\\..*";
                 std::regex pattern(regexPattern);
@@ -93,8 +93,8 @@ namespace cobold
                 for (const auto &pair : configMap)
                 {
 
-                    Serial.println(pair.first.c_str());
-                    Serial.println(pair.second.c_str());
+                    // Serial.println(pair.first.c_str());
+                    // Serial.println(pair.second.c_str());
                     if (std::regex_match(pair.first, pattern))
                     {
                         std::string shortenedKey = pair.first.substr(prefixLength);
@@ -106,28 +106,43 @@ namespace cobold
                 return sectionConfig;
             }
 
-            void update(IConfiguration *configuration)
+            void update(IConfiguration *configuration) override
             {
-                for (const auto &pair : configMap)
+                // Serial.println("update");
+                for (const auto &pair : configuration->toMap())
                 {
-                    configuration->setValue(pair.first, pair.second);
+                    // Serial.println(pair.first.c_str());
+                    // Serial.println(pair.second.c_str());
+                    this->setValue(pair.first, pair.second);
                 }
             }
 
-            void loadFromJson(const char *jsonString)
+            void loadFromJson(const char *jsonString, const std::string &prefix = "")
             {
                 StaticJsonDocument<256> jsonDoc;
                 deserializeJson(jsonDoc, jsonString);
 
                 for (const JsonPair &kvp : jsonDoc.as<JsonObject>())
                 {
-                    std::string key = kvp.key().c_str();
-                    std::string value = kvp.value().as<std::string>();
-                    setValue(key, value);
+                    std::string key = prefix.empty() ? kvp.key().c_str() : prefix + "." + kvp.key().c_str();
+
+                    if (kvp.value().is<JsonObject>())
+                    {
+                        // Recursively load nested JSON objects
+                        loadFromJson(kvp.value().as<std::string>().c_str(), key);
+                    }
+                    else
+                    {
+                        // Set the value for the current key
+                        std::string value = kvp.value().as<std::string>();
+                        setValue(key, value);
+                        // Serial.println(key.c_str());
+                        // Serial.println(value.c_str());
+                    }
                 }
             }
 
-            std::string toJson()
+            std::string toJson() override
             {
                 StaticJsonDocument<4096> jsonDoc;
 
@@ -161,6 +176,11 @@ namespace cobold
                 serializeJson(jsonDoc, jsonString);
 
                 return jsonString;
+            }
+
+            std::map<std::string, std::string> toMap() override
+            {
+                return configMap;
             }
         };
 

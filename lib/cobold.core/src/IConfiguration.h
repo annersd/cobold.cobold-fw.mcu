@@ -33,6 +33,9 @@ namespace cobold
              * @details This method use all pairs from the given configuration to update the current configuration.
              */
             virtual void update(IConfiguration *configuration) = 0;
+
+            virtual std::string toJson() = 0;
+            virtual std::map<std::string, std::string> toMap() = 0;
         };
 
     } // namespace configuration

@@ -127,8 +127,10 @@ public:
             ++constructorIt;
         }
 
-        delete typeWrapper; // Clean up typeWrapper
         logger->verbose("Service not found and no constructor available");
+        logger->verbose(typeWrapper->GetTypeName().c_str());
+        delete typeWrapper; // Clean up typeWrapper
+        
         return nullptr;
     }
 

@@ -12,6 +12,9 @@ namespace cobold
 {
     Application::Application(cobold::hosting::IHostBuilder *hostBuilder)
     {
+        // Initialize Arduino Framweork
+        Serial.begin(115200);
+
         // Create an instance of the HostBuilder class
         this->hostBuilder = hostBuilder;
 
@@ -30,31 +33,30 @@ namespace cobold
         // Configure the host
 
         // Configure the app configuration
-hostBuilder->configureServices(
+        hostBuilder->configureServices(
             [this](ServiceCollection *services) -> void
             {
                 // Add Application
                 services->addService<IApplication>(this);
             });
 
-                        auto hb = this;
+        auto hb = this;
 
         hostBuilder->configureServices(
             [hb](ServiceCollection *services) -> void
             {
-
                 // Add Network service
                 services->addService<Network>([hb](ServiceCollection *services) -> void *
                                               { 
                     auto wifiSettings = hb->getAppConfiguration()
                         ->getSection("cobold.network.wifi");
 
-                    Serial.println(wifiSettings->getValue("ssid").c_str());
-                    Serial.println(wifiSettings->getValue("password").c_str());
+                    // Serial.println(wifiSettings->getValue("ssid").c_str());
+                    // Serial.println(wifiSettings->getValue("password").c_str());
 
                     return new Network(
-                         wifiSettings->getValue("ssid").c_str() , 
-                         wifiSettings->getValue("password").c_str() ); });
+                        wifiSettings->getValue("ssid").c_str() , 
+                        wifiSettings->getValue("password").c_str() ); });
             });
 
         hostBuilder->configureServices(
@@ -103,11 +105,9 @@ hostBuilder->configureServices(
         logger->info("Setup OTA");
         getServices()->getService<AsyncElegantOtaClass>()->begin(getServices()->getService<WebServer>()->getServer());
 
-        
         // start the webserver
         logger->info("Setup Webserver");
         getServices()->getService<WebServer>()->start();
-        
     }
 
     void Application::loop()

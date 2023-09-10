@@ -118,6 +118,14 @@ namespace cobold
                     configMap[std::string(kvp.key().c_str())] = kvp.value().as<std::string>();
                 }
             }
+
+            void update(IConfiguration *configuration)
+            {
+                for (const auto &pair : configMap)
+                {
+                    configuration->setValue(pair.first, pair.second);
+                }
+            }
         };
 
     }

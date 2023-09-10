@@ -26,6 +26,13 @@ namespace cobold
             virtual std::vector<std::string> findKeysByRegex(const std::string &regexPattern) = 0;
 
             virtual IConfiguration *getSection(const std::string &path) = 0;
+
+            /**
+             * @brief Update the configuration with the given configuration
+             *
+             * @details This method use all pairs from the given configuration to update the current configuration.
+             */
+            virtual void update(IConfiguration *configuration) = 0;
         };
 
     } // namespace configuration

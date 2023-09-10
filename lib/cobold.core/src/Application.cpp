@@ -7,6 +7,7 @@
 #include <AsyncElegantOTA.h>
 #include <WebServer.h>
 #include "Configuration.h"
+#include "ComponentExtensions.h"
 
 namespace cobold
 {
@@ -114,6 +115,14 @@ namespace cobold
     {
         // Implement your loop logic here
         getServices()->getService<Scheduler>()->run();
+
+        auto components = cobold::components::ComponentExtensions::GetComponents(getServices());
+
+        //call update on each component
+        for (auto component : components)
+        {
+            component->update();
+        }
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

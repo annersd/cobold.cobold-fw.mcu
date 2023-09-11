@@ -96,7 +96,7 @@ namespace cobold
 
         // Get the logger
         logger = services->getService<Logger>();
-
+        
         // Get the Network service
         logger->info("Setup Network");
         auto network = getServices()->getService<Network>();
@@ -118,13 +118,15 @@ namespace cobold
 
         auto components = cobold::components::ComponentExtensions::GetComponents(getServices());
 
-        //call update on each component
+        // call update on each component
         for (auto component : components)
+        
         {
             component->update();
         }
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        // as long as the scheduler is running from the outer loop, we delay here
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
     void Application::run()

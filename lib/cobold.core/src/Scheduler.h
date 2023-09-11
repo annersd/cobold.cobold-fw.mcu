@@ -80,6 +80,8 @@ public:
     // Call this function in your main loop to execute scheduled tasks
     void run()
     {
+        logger->debug("Scheduler run");
+        
         uint32_t currentMillis = millis();
 
         // Get a copy of the items

@@ -4,6 +4,17 @@
 #include "Scheduler.h"
 #include "secrets.h"
 
+void setupExamples()
+{
+  // put your setup code here, to run once:
+
+  cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
+      1000, [](const Scheduler::StateObject &state) -> void
+      { Serial.println("Hello World"); },
+      "HelloWorld", 1000, Scheduler::StateObject());
+}
+
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -26,7 +37,9 @@ Serial.begin(115200);
   // (Optional) Add sketch size and free PSRAM (if available)
   cobold::app->run();
 
-}
+  setupExamples();
+
+  }
 
 void loop()
 {
@@ -35,12 +48,3 @@ void loop()
 
 }
 
-void setupExamples()
-{
-  // put your setup code here, to run once:
-
-  cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
-      1000, [](const Scheduler::StateObject &state) -> void
-      { Serial.println("Hello World"); },
-      "HelloWorld", 1000, Scheduler::StateObject());
-}

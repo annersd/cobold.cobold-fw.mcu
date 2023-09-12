@@ -8,6 +8,9 @@
 #include <WebServer.h>
 #include "Configuration.h"
 #include "ComponentExtensions.h"
+#include <AsyncMqttClient.h>
+#include "Dispatcher.h"
+#include "Event.h"
 
 namespace cobold
 {
@@ -39,6 +42,22 @@ namespace cobold
             {
                 // Add Application
                 services->addService<IApplication>(this);
+            });
+
+        hostBuilder->configureServices(
+            [this](ServiceCollection *services) -> void
+            {
+                // Add Dispatcher
+                services->addService<dispatch_queue>([this](ServiceCollection *services) -> void *
+                                                     { return new dispatch_queue("main"); });
+            });
+
+        hostBuilder->configureServices(
+            [this](ServiceCollection *services) -> void
+            {
+                // Add EventDispatcher
+                services->addService<EventDispatcher>([this](ServiceCollection *services) -> void *
+                                                      { return new EventDispatcher(this); });
             });
 
         auto hb = this;
@@ -76,6 +95,25 @@ namespace cobold
                 services->addService<Scheduler>([app](ServiceCollection *services) -> void *
                                                 { return new Scheduler(app); });
             });
+
+        hostBuilder->configureServices(
+            [hb](ServiceCollection *services) -> void
+            {
+                // Add MQTT service
+                Serial.println("Configuring MQTT");
+
+                services->addService<AsyncMqttClient>([hb](ServiceCollection *services) -> void *
+                                                      { 
+                    Serial.println("Configuring MQTT"); 
+                auto mqttConfig = hb->getAppConfiguration()
+                    ->getSection("cobold.mqtt");
+                AsyncMqttClient* mqttServer = new AsyncMqttClient();
+                mqttServer->setServer(
+                    //mqttConfig->getValue("host").c_str(), 
+                    IPAddress(192, 168, 0, 67),
+                    atoi(mqttConfig->getValue("port").c_str()));
+                return mqttServer; });
+            });
     }
 
     void Application::setup()
@@ -96,19 +134,15 @@ namespace cobold
 
         // Get the logger
         logger = services->getService<Logger>();
-        
+
         // Get the Network service
         logger->info("Setup Network");
         auto network = getServices()->getService<Network>();
         network->setup();
 
         // Assign server to OTA class
-        logger->info("Setup OTA");
-        getServices()->getService<AsyncElegantOtaClass>()->begin(getServices()->getService<WebServer>()->getServer());
-
-        // start the webserver
-        logger->info("Setup Webserver");
-        getServices()->getService<WebServer>()->start();
+        // logger->info("Setup OTA");
+        // getServices()->getService<AsyncElegantOtaClass>()->begin(getServices()->getService<WebServer>()->getServer());
     }
 
     void Application::loop()
@@ -120,7 +154,7 @@ namespace cobold
 
         // call update on each component
         for (auto component : components)
-        
+
         {
             component->update();
         }
@@ -132,6 +166,15 @@ namespace cobold
     void Application::run()
     {
         // Implement your run logic here
+
+        // start the webserver
+        // logger->info("Start Webserver");
+        // getServices()->getService<WebServer>()->start();
+
+        // start the mqtt client
+        logger->info("Start MQTT");
+        getServices()->getService<AsyncMqttClient>()->connect();
+
         logger->info("Starting host");
         host->start();
     }
@@ -154,5 +197,17 @@ namespace cobold
     cobold::configuration::IConfiguration *Application::getAppConfiguration()
     {
         return configuration;
+    }
+
+    void Application::dispatch(std::function<void()> function)
+    {
+        auto dispatcher = getServices()->getService<dispatch_queue>();
+        dispatcher->dispatch(function);
+    }
+
+    void Application::raiseEvent(std::string eventName, void* eventPayload)
+    {
+        auto dispatcher = getServices()->getService<EventDispatcher>();
+        dispatcher->dispatch(eventName, eventPayload);
     }
 }

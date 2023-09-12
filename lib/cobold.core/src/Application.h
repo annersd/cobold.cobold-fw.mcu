@@ -21,6 +21,8 @@ namespace cobold
         void setup() override;
         void loop() override;
         void run() override;
+        void dispatch(std::function<void()> function) override;
+        void raiseEvent(std::string name, void* data) override;
 
         ServiceCollection *getServices() override;
         cobold::hosting::IHost *getHost() override;

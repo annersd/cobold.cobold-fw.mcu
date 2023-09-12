@@ -3,7 +3,6 @@
 #include "ServiceCollection.h"
 #include "IHostBuilder.h"
 #include "IHost.h"
-
 namespace cobold
 {
     class IApplication
@@ -34,6 +33,9 @@ namespace cobold
          * @brief Run the application
         */
         virtual void run() = 0;
+
+        virtual void dispatch(std::function<void()> function) = 0;
+        virtual void raiseEvent(std::string name, void* data) = 0;
 
         virtual ServiceCollection *getServices() = 0;
         virtual cobold::hosting::IHost *getHost() = 0;

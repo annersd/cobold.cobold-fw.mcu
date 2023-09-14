@@ -11,6 +11,7 @@
 #include <AsyncMqttClient.h>
 #include "Dispatcher.h"
 #include "Event.h"
+#include "EventDispatcher.h"
 
 namespace cobold
 {
@@ -143,24 +144,27 @@ namespace cobold
         // Assign server to OTA class
         // logger->info("Setup OTA");
         // getServices()->getService<AsyncElegantOtaClass>()->begin(getServices()->getService<WebServer>()->getServer());
+    
+        scheduler = getServices()->getService<Scheduler>();
     }
 
     void Application::loop()
     {
+        Serial.println("Loop");
         // Implement your loop logic here
-        getServices()->getService<Scheduler>()->run();
+        scheduler->run();
 
-        auto components = cobold::components::ComponentExtensions::GetComponents(getServices());
+        // auto components = cobold::components::ComponentExtensions::GetComponents(getServices());
 
-        // call update on each component
-        for (auto component : components)
+        // // call update on each component
+        // for (auto component : components)
 
-        {
-            component->update();
-        }
+        // {
+        //     component->update();
+        // }
 
         // as long as the scheduler is running from the outer loop, we delay here
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 
     void Application::run()
@@ -207,7 +211,9 @@ namespace cobold
 
     void Application::raiseEvent(std::string eventName, void* eventPayload)
     {
+        Serial.println("Raise event");
         auto dispatcher = getServices()->getService<EventDispatcher>();
+
         dispatcher->dispatch(eventName, eventPayload);
     }
 }

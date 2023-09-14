@@ -27,6 +27,7 @@ namespace cobold
              */
             static std::vector<cobold::hosting::IHostedService *> GetHostedServices(ServiceCollection *serviceCollection)
             {
+                Serial.println("HostingExtensions::GetHostedServices");
                 std::vector<cobold::hosting::IHostedService *> servicesList;
                 Logger *logger = serviceCollection->getService<cobold::Logger>();
 

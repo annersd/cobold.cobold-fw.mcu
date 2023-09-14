@@ -96,7 +96,7 @@ public:
         auto it = services.begin();
         while (it != services.end())
         {
-            logger->verbose("Checking service: %s", it->first->GetTypeName().c_str());
+            //logger->verbose("Checking service: %s", it->first->GetTypeName().c_str());
             ITypeWrapper *wrapper = it->first;
 
             if (wrapper->GetTypeName() == typeName)

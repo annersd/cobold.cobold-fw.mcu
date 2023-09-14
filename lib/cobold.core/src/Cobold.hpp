@@ -8,6 +8,7 @@
 #include <ArduinoJson.h>
 #include <ArduinoLog.h>
 
+#include "Object.h"
 #include "Logger.h"
 #include "IApplication.h"
 #include "ServiceCollection.h"

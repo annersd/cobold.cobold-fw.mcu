@@ -3,6 +3,7 @@
 #include "CoboldHosting.hpp"
 #include "Scheduler.h"
 #include "secrets.h"
+#include "EventDispatcher.h"
 
 void setupExamples()
 {
@@ -11,7 +12,12 @@ void setupExamples()
   cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
       1000, [](const Scheduler::StateObject &state) -> void
       { Serial.println("Hello World"); },
-      "HelloWorld", 1000, Scheduler::StateObject());
+      "HelloWorld", 5000, Scheduler::StateObject());
+
+  // cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
+  //     1000, [](const Scheduler::StateObject &state) -> void
+  //     {  cobold::app->raiseEvent("setup", new std::string("Hello World from setup"));},
+  //     "", 1000, Scheduler::StateObject());
 }
 
 
@@ -38,6 +44,23 @@ Serial.begin(115200);
   cobold::app->run();
 
   setupExamples();
+
+  cobold::app->getServices()
+    ->getService<EventDispatcher>()
+    ->registerEventHandler<std::string>("setup", [](std::string *data) -> void
+    { 
+        if (data != nullptr) {
+            // Check if 'data' is a valid pointer to a std::string
+            Serial.println("Hello World from event handler");
+            // Serial.println(data->c_str());
+        } else {
+            // Handle the case when 'data' is null
+            Serial.println("Received null data in event handler");
+        }
+    });
+
+     cobold::app->raiseEvent("setup", new std::string("Hello World from setup"));
+ 
 
   }
 

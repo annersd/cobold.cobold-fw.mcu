@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Arduino.h>
 #include <vector>
 #include <functional>
@@ -51,6 +53,7 @@ public:
 
     Scheduler(cobold::IApplication *app )
     {
+        Serial.println("Scheduler constructor");
         logger = app->getServices()->getService<cobold::Logger>();
 
         // Create a mutex to protect access to the items vector

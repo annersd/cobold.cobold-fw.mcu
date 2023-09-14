@@ -1,35 +1,28 @@
 #pragma once
 
 #include <string>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/event_groups.h>
-#include <freertos/semphr.h>
-#include "IApplication.h"
-#include "Logger.h"
+#include <functional>
+#include <vector>
 
-class Event
+class Event1
 {
 private:
     /* data */
     std::string name;
     void *data;
-    SemaphoreHandle_t mutex;
 
 public:
-    Event(std::string name, void* data){
+    Event1(std::string name, void* data){
         this->name = name;
         this->data = data;
-        this->mutex = xSemaphoreCreateMutex();
     };
 
-    Event(){
+    Event1(){
         this->name = "n/a";
         this->data = nullptr;
-        this->mutex = xSemaphoreCreateMutex();
     };
 
-    ~Event(){};
+    ~Event1(){};
 
     std::string getName()
     {
@@ -52,15 +45,59 @@ public:
     };
 };
 
+class Event2
+{
+private:
+    /* data */
+    std::string name;
+    void *data;
+
+public:
+
+    Event2(std::string name, void* data){
+        this->name = name;
+        this->data = data;
+    };
+
+    Event2(){
+        this->name = "n/a";
+        this->data = nullptr;
+    };
+
+    ~Event2(){};
+
+    std::string getName()
+    {
+        return this->name;
+    };
+
+    template <typename T>
+    T *getData()
+    {
+        return this->data;
+    };
+
+    void setName(std::string name)
+    {
+        this->name = name;
+    };
+
+    template <typename T>
+    void setData(T *data)
+    {
+        this->data = data;
+    };
+};
+
 class EventHandler
 {
 private:
     /* data */
     std::string eventName;
-    std::function<void(Event *)> eventHandler;
+    std::function<void(Event2 *)> eventHandler;
 
 public:
-    EventHandler(std::string eventName, std::function<void(Event *)> eventHandler)
+    EventHandler(std::string eventName, std::function<void(Event2 *)> eventHandler)
     {
         this->eventName = eventName;
         this->eventHandler = eventHandler;
@@ -72,72 +109,10 @@ public:
         return this->eventName;
     };
 
-    std::function<void(Event *)> getEventHandler()
+    std::function<void(Event2 *)> getEventHandler()
     {
         return this->eventHandler;
     };
 };
 
-class EventDispatcher
-{
-private:
-    /* data */
-    cobold::IApplication *app;
-    std::vector<EventHandler> eventHandlers;
-    SemaphoreHandle_t mutex;
-    cobold::Logger *logger;
 
-public:
-    EventDispatcher(cobold::IApplication *app)
-    {
-        this->app = app;
-        this->mutex = xSemaphoreCreateMutex();
-        this->logger = app->getServices()->getService<cobold::Logger>();
-    };
-    ~EventDispatcher(){};
-
-    void registerEventHandler(std::string eventName, std::function<void(Event *)> eventHandler)
-    {
-        logger->debug("Registering event handler for event: %s" , eventName);
-        xSemaphoreTake(this->mutex, portMAX_DELAY);
-        this->eventHandlers.push_back(EventHandler(eventName, eventHandler));
-        xSemaphoreGive(this->mutex);
-    };
-
-    void dispatch(Event event)
-    {
-
-        // lookup registered event handler
-        xSemaphoreTake(this->mutex, portMAX_DELAY);
-
-        for (auto &eventHandler : this->eventHandlers)
-        {
-            if (eventHandler.getEventName() == event.getName())
-            {
-                auto eh = eventHandler.getEventHandler();
-                logger->debug("Dispatching event: %s" , event.getName());
-                app->dispatch([&eh, &event]() -> void
-                              {
-                                  eh(&event);
-                              });
-            }
-        }
-
-        xSemaphoreGive(this->mutex);
-    };
-
-    void dispatch(std::string eventName, void *data)
-    {
-        Event event;
-        event.setName(eventName);
-        event.setData(data);
-        this->dispatch(event);
-    };
-
-    void dispatch(std::string eventName)
-    {
-        Event event;
-        event.setName(eventName);
-        this->dispatch(event);
-    };
-};

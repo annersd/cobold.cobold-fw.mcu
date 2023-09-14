@@ -6,6 +6,7 @@
 #include "IHostBuilder.h"
 #include "IConfiguration.h"
 #include "Logger.h"
+#include "Scheduler.h"
 
 
 namespace cobold
@@ -28,6 +29,7 @@ namespace cobold
         cobold::hosting::IHost *getHost() override;
         cobold::hosting::IHostBuilder *getHostBuilder() override;
         cobold::configuration::IConfiguration *getAppConfiguration() override;
+        Scheduler *scheduler;
 
     private:
         ServiceCollection *services;

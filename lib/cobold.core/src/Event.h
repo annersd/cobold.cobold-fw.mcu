@@ -3,116 +3,101 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include "Object.h"
 
-class Event1
+namespace cobold
 {
-private:
-    /* data */
-    std::string name;
-    void *data;
-
-public:
-    Event1(std::string name, void* data){
-        this->name = name;
-        this->data = data;
-    };
-
-    Event1(){
-        this->name = "n/a";
-        this->data = nullptr;
-    };
-
-    ~Event1(){};
-
-    std::string getName()
+    namespace sys
     {
-        return this->name;
-    };
 
-    void *getData()
-    {
-        return this->data;
-    };
+        class Event
+        {
+        private:
+            /* data */
+            std::string source;
+            std::string type;
+            cobold::sys::BaseObject *data;
 
-    void setName(std::string name)
-    {
-        this->name = name;
-    };
+        public:
+            Event(std::string source, std::string type, cobold::sys::BaseObject *data)
+            {
+                this->source = source;
+                this->type = type;
+                this->data = data;
+            };
 
-    void setData(void *data)
-    {
-        this->data = data;
-    };
-};
+            ~Event(){};
 
-class Event2
-{
-private:
-    /* data */
-    std::string name;
-    void *data;
+            std::string getSource()
+            {
+                return this->source;
+            };
 
-public:
+            std::string getType()
+            {
+                return this->type;
+            };
 
-    Event2(std::string name, void* data){
-        this->name = name;
-        this->data = data;
-    };
+            cobold::sys::BaseObject *getData()
+            {
+                return this->data;
+            };
 
-    Event2(){
-        this->name = "n/a";
-        this->data = nullptr;
-    };
+            template <typename TEventData>
+            static Event *create(std::string source, std::string type, TEventData *data)
+            {
+                return new Event(source, type, new cobold::sys::Object<TEventData>(data));
+            };
+        };
 
-    ~Event2(){};
+        class EventHandler
+        {
+        private:
+            /* data */
+            std::string source;
+            std::string type;
+            std::function<void(Event *)> eventHandler;
 
-    std::string getName()
-    {
-        return this->name;
-    };
+        public:
+            EventHandler(std::string source, std::function<void(Event *)> eventHandler)
+            {
+                this->source = source;
+                this->eventHandler = eventHandler;
+            };
 
-    template <typename T>
-    T *getData()
-    {
-        return this->data;
-    };
+            ~EventHandler(){};
 
-    void setName(std::string name)
-    {
-        this->name = name;
-    };
+            std::string getSource()
+            {
+                return this->source;
+            };
 
-    template <typename T>
-    void setData(T *data)
-    {
-        this->data = data;
-    };
-};
+            std::string getType()
+            {
+                return this->type;
+            };
 
-class EventHandler
-{
-private:
-    /* data */
-    std::string eventName;
-    std::function<void(Event2 *)> eventHandler;
+            std::function<void(Event *)> getEventHandler()
+            {
+                return this->eventHandler;
+            };
 
-public:
-    EventHandler(std::string eventName, std::function<void(Event2 *)> eventHandler)
-    {
-        this->eventName = eventName;
-        this->eventHandler = eventHandler;
-    };
-    ~EventHandler(){};
+            template <typename TEventData>
+            static EventHandler *create(std::string source, std::string type, std::function<void(TEventData *)> eventHandler)
+            {
+                return new EventHandler(source, [eventHandler](Event *event) -> void
+                                        {
+                    auto eventData = cobold::sys::unwrap<TEventData>(event->getData());
+                    if (eventData != nullptr)
+                    {
+                        eventHandler(eventData);
+                    }
+                    else
+                    {
+                        eventHandler(nullptr);
+                    } });
+            };
+        };
 
-    std::string getEventName()
-    {
-        return this->eventName;
-    };
-
-    std::function<void(Event2 *)> getEventHandler()
-    {
-        return this->eventHandler;
-    };
-};
-
-
+    } // namespace sys
+} // namespace cobold

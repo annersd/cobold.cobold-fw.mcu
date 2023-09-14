@@ -7,7 +7,8 @@
 #include "IConfiguration.h"
 #include "Logger.h"
 #include "Scheduler.h"
-
+#include "Object.h"
+#include "Event.h"
 
 namespace cobold
 {
@@ -23,7 +24,7 @@ namespace cobold
         void loop() override;
         void run() override;
         void dispatch(std::function<void()> function) override;
-        void raiseEvent(std::string name, void* data) override;
+        void raiseEvent(cobold::sys::Event* event) override;
 
         ServiceCollection *getServices() override;
         cobold::hosting::IHost *getHost() override;

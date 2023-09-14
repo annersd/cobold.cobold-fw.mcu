@@ -55,6 +55,20 @@ namespace cobold
          * @brief A class for wrapping an object.
          *
          * @tparam T The type of the object to wrap.
+         * 
+         * @example
+         * 
+         * // Wrap an object
+         * std::string *str = new std::string("Hello");
+         * cobold::sys::Object<std::string> *wrappedStr = new cobold::sys::Object<std::string>(str, true);
+         * 
+         * // Unwrap the object
+         * std::string *unwrappedStr = cobold::sys::unwrap(wrappedStr);
+         * 
+         * // Automatic delete on destruction
+         * cobold::sys::Object<std::string> *wrappedStr2 
+         *      = new cobold::sys::Object<std::string>(new std::string("Hello"), true);
+         * delete wrappedStr2; // The wrapped string will be deleted automatically
          */
         template <typename T>
         class Object : public BaseObject
@@ -79,6 +93,11 @@ namespace cobold
             }
 
             void *getObject() const override
+            {
+                return object;
+            }
+
+            T *get() const
             {
                 return object;
             }
@@ -124,5 +143,66 @@ namespace cobold
                 properties[key] = value;
             }
         };
+
+        template <typename T>
+        static T *unwrap(BaseObject *obj, T *defaultValue = nullptr)
+        {
+            if (obj == nullptr)
+            {
+                // Handle the case when 'obj' is null, e.g., by returning a default value or throwing an exception.
+                return defaultValue;
+            }
+
+            Object<T> *typedObj = dynamic_cast<Object<T> *>(obj);
+            if (typedObj == nullptr)
+            {
+                // Handle the case when the dynamic type doesn't match 'T', e.g., by returning a default value or throwing an exception.
+                return defaultValue;
+            }
+
+            return typedObj->get();
+        }
+
+        template <typename T>
+        static T *unwrap(BaseObject &obj, T *defaultValue = nullptr)
+        {
+            return unwrap(&obj, defaultValue);
+        }
+
+        template <typename T>
+        static T *unwrap(BaseObject &&obj, T *defaultValue = nullptr)
+        {
+            return unwrap(&obj, defaultValue);
+        }
+
+        template <typename T>
+        static cobold::sys::Object<T> *wrap(T *obj, bool shouldDelete = false)
+        {
+            return new cobold::sys::Object<T>(obj, shouldDelete);
+        }
+
+        template <typename T>
+        static cobold::sys::Object<T> *wrap(T &obj, bool shouldDelete = false)
+        {
+            return new cobold::sys::Object<T>(&obj, shouldDelete);
+        }
+
+        template <typename T>
+        static cobold::sys::Object<T> *wrap(T &&obj, bool shouldDelete = false)
+        {
+            return new cobold::sys::Object<T>(&obj, shouldDelete);
+        }
+
+        template <typename T>
+        static cobold::sys::Object<T> *wrap(T *obj, bool shouldDelete, std::map<std::string, std::string> properties)
+        {
+            cobold::sys::Object<T> *wrappedObj = new cobold::sys::Object<T>(obj, shouldDelete);
+            for (auto it = properties.begin(); it != properties.end(); ++it)
+            {
+                wrappedObj->setProperty(it->first, it->second);
+            }
+            return wrappedObj;
+        }
+        
     } // namespace sys
 } // namespace cobold

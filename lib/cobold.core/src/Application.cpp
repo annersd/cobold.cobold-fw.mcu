@@ -12,6 +12,7 @@
 #include "Dispatcher.h"
 #include "Event.h"
 #include "EventDispatcher.h"
+#include "Object.h"
 
 namespace cobold
 {
@@ -57,8 +58,8 @@ namespace cobold
             [this](ServiceCollection *services) -> void
             {
                 // Add EventDispatcher
-                services->addService<EventDispatcher>([this](ServiceCollection *services) -> void *
-                                                      { return new EventDispatcher(this); });
+                services->addService<cobold::sys::EventDispatcher>([this](ServiceCollection *services) -> void *
+                                                      { return new cobold::sys::EventDispatcher(this); });
             });
 
         auto hb = this;
@@ -209,11 +210,11 @@ namespace cobold
         dispatcher->dispatch(function);
     }
 
-    void Application::raiseEvent(std::string eventName, void* eventPayload)
+    void Application::raiseEvent(cobold::sys::Event* event)
     {
         Serial.println("Raise event");
-        auto dispatcher = getServices()->getService<EventDispatcher>();
+        auto dispatcher = getServices()->getService<cobold::sys::EventDispatcher>();
 
-        dispatcher->dispatch(eventName, eventPayload);
+        dispatcher->dispatch(event);
     }
-}
+} // namespace cobold

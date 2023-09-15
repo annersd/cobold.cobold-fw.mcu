@@ -9,6 +9,7 @@
 #include <ArduinoLog.h>
 
 #include "Object.h"
+#include "Event.h"
 #include "Logger.h"
 #include "IApplication.h"
 #include "ServiceCollection.h"
@@ -27,6 +28,9 @@
 #include "IComponent.h"
 #include "ComponentExtensions.h"
 
+#include "Scheduler.h"
+#include "EventDispatcher.h"
+
 // possible link error 
 // #include "BigInt128.h"
 
@@ -44,10 +48,10 @@
 #include <ESPAsyncWebServer.h>
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
+#include "AsyncMqttClient.h"
 
 #include "Network.h"
 #include "WebServer.h"
-
 
 namespace cobold
 {

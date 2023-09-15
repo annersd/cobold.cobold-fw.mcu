@@ -15,14 +15,14 @@ namespace cobold
             /**
              * @brief Get the wrapped object.
              */
-            virtual void *getObject() const = 0;
+            virtual void *getObject() = 0;
 
             /**
              * @brief Get the type name of the wrapped object.
              *
              * @return The type name of the wrapped object.
              */
-            virtual std::string getTypeName() const = 0;
+            virtual std::string getTypeName() = 0;
 
             /**
              * @brief Get the hash of the object.
@@ -92,17 +92,17 @@ namespace cobold
                 }
             }
 
-            void *getObject() const override
+            void *getObject()  override
+            {
+                return (void*) (object);
+            }
+
+            T *get() 
             {
                 return object;
             }
 
-            T *get() const
-            {
-                return object;
-            }
-
-            std::string getTypeName() const
+            std::string getTypeName()  override
             {
                 return typeid(T).name();
             }

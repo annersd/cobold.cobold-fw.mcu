@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 #include "Logger.h"
+#include "IApplication.h"
+// #include "Event.h"
 
 #ifdef ESP32
 #include <WiFi.h>
@@ -28,6 +30,7 @@ private:
     String ssid;
     String password;
     cobold::Logger *logger;
+    cobold::IApplication *app;
     TimerHandle_t wifiReconnectTimer;
 
     void connectToWifi()
@@ -62,6 +65,7 @@ private:
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
             logger->info("[WiFi-event] WiFi connected; IP address: %s", WiFi.localIP().toString());
+            app->raiseEvent(cobold::sys::Event::create("cobold.network.connected", "void", ""));
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             logger->info("[WiFi-event] WiFi lost connection");
@@ -72,7 +76,7 @@ private:
     }
 
 public:
-    Network(String ssid, String password);
+    Network(cobold::IApplication *app, String ssid, String password);
 
     void setup()
     {

@@ -76,7 +76,7 @@ namespace cobold
                     // Serial.println(wifiSettings->getValue("ssid").c_str());
                     // Serial.println(wifiSettings->getValue("password").c_str());
 
-                    return new Network(
+                    return new Network(hb,
                         wifiSettings->getValue("ssid").c_str() , 
                         wifiSettings->getValue("password").c_str() ); });
             });
@@ -114,6 +114,17 @@ namespace cobold
                     //mqttConfig->getValue("host").c_str(), 
                     IPAddress(192, 168, 0, 67),
                     atoi(mqttConfig->getValue("port").c_str()));
+
+                mqttServer->setClientId("cobold");
+
+                mqttServer->onConnect([](bool sessionPresent) {
+                    Serial.println("connected");
+                    Serial.print("session present: ");
+                    Serial.println(sessionPresent);
+
+                    
+                });
+
                 return mqttServer; });
             });
     }
@@ -151,7 +162,7 @@ namespace cobold
 
     void Application::loop()
     {
-        Serial.println("Loop");
+        // Serial.println("Loop");
         // Implement your loop logic here
         scheduler->run();
 
@@ -178,10 +189,21 @@ namespace cobold
 
         // start the mqtt client
         logger->info("Start MQTT");
-        getServices()->getService<AsyncMqttClient>()->connect();
+        auto mqttClient = getServices()->getService<AsyncMqttClient>();
+
+        mqttClient->onConnect([mqttClient](bool sessionPresent) {
+        
+        mqttClient->setWill("cobold/host/connected", 0, true, "false");
+        mqttClient->publish("cobold/host/isconnected", 0, false, "true");
+
+            
+        });
+        mqttClient->connect();
 
         logger->info("Starting host");
         host->start();
+
+        
     }
 
     ServiceCollection *Application::getServices()
@@ -212,7 +234,7 @@ namespace cobold
 
     void Application::raiseEvent(cobold::sys::Event* event)
     {
-        Serial.println("Raise event");
+        logger->debug("Raise event %s", event->getSource().c_str());
         auto dispatcher = getServices()->getService<cobold::sys::EventDispatcher>();
 
         dispatcher->dispatch(event);

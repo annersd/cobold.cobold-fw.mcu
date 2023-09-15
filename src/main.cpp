@@ -1,11 +1,9 @@
 
 #include "Cobold.hpp"
 #include "CoboldHosting.hpp"
-#include "Scheduler.h"
+
 #include "secrets.h"
-#include "EventDispatcher.h"
-#include "Event.h"
-#include "Object.h"
+
 
 void setupExamples()
 {
@@ -13,8 +11,11 @@ void setupExamples()
 
   cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
       1000, [](const Scheduler::StateObject &state) -> void
-      { Serial.println("Hello World"); },
-      "HelloWorld", 5000, Scheduler::StateObject());
+      { Serial.println("Hello World"); 
+      auto mqttClient = cobold::app->getServices()->getService<AsyncMqttClient>();
+      mqttClient->publish("cobold/host/running", 0, false, "still running");
+      },
+      "HelloWorld", 10000, Scheduler::StateObject());
 
   // cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
   //     1000, [](const Scheduler::StateObject &state) -> void
@@ -76,7 +77,21 @@ void setup()
         Serial.println("Received null data in event handler");
     } }));
 
-  cobold::app->raiseEvent(cobold::sys::Event::create("main.setup", "type", new std::string("Hello World from setup")));
+  // this makes trouble with the scheduler
+  // cobold::app->raiseEvent(cobold::sys::Event::create("main.setup", "type", new std::string("Hello World from setup")));
+
+  auto mqttClient = cobold::app->getServices()->getService<AsyncMqttClient>();
+  mqttClient->subscribe("test/lol", 0);
+  mqttClient->onMessage([](char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) -> void
+                        {
+    Serial.println("Received message");
+    Serial.println(topic);
+    Serial.println(payload);
+    Serial.println(len);
+    Serial.println(index);
+    Serial.println(total);
+    Serial.println("End of message");
+  });
 }
 
 void loop()

@@ -5,9 +5,9 @@
 
 #include <map>
 #include <functional>
-#include <typeinfo>
 
-#include "TypeWrapper.h"
+
+#include "Object.h"
 #include "Logger.h"
 
 /**
@@ -34,7 +34,7 @@ public:
     template <typename T>
     void addService()
     {
-        services[new TypeWrapper<T>()] = []() -> void *
+        services[new cobold::sys::Object<T>()] = []() -> void *
         { return new T(); };
     }
 
@@ -49,7 +49,7 @@ public:
     template <typename T>
     void addService(std::function<void *(ServiceCollection *)> constructor)
     {
-        constructorMap[new TypeWrapper<T>()] = constructor;
+        constructorMap[new cobold::sys::Object<T>()] = constructor;
     }
 
     /**
@@ -63,16 +63,16 @@ public:
     template <typename T>
     void addService(T *service)
     {
-        services[new TypeWrapper<T>()] = [service]() -> void *
+        services[new cobold::sys::Object<T>()] = [service]() -> void *
         { return service; };
     }
 
-    void addExternalService(ITypeWrapper* typeWrapper, std::function<void *(ServiceCollection *)> constructor)
+    void addExternalService(cobold::sys::BaseObject* typeWrapper, std::function<void *(ServiceCollection *)> constructor)
     {
         constructorMap[typeWrapper] = constructor;
     }
 
-    void addExternalService(ITypeWrapper* typeWrapper, void* service)
+    void addExternalService(cobold::sys::BaseObject* typeWrapper, void* service)
     {
         services[typeWrapper] = [service]() -> void* { return service; };
     }
@@ -86,10 +86,10 @@ public:
     template <typename T>
     T *getService()
     {
-        ITypeWrapper *typeWrapper = new TypeWrapper<T>();
-        std::string typeName = typeWrapper->GetTypeName();
+        cobold::sys::BaseObject *typeWrapper = new cobold::sys::Object<T>();
+        std::string typeName = typeWrapper->getTypeName();
 
-        logger->verbose("Looking for service: %s", typeWrapper->GetTypeName().c_str());
+        logger->verbose("Looking for service: %s", typeWrapper->getTypeName().c_str());
 
         // Check in the services map
         logger->verbose("Checking services map");
@@ -97,9 +97,9 @@ public:
         while (it != services.end())
         {
             //logger->verbose("Checking service: %s", it->first->GetTypeName().c_str());
-            ITypeWrapper *wrapper = it->first;
+            cobold::sys::BaseObject *wrapper = it->first;
 
-            if (wrapper->GetTypeName() == typeName)
+            if (wrapper->getTypeName() == typeName)
             {
                 logger->verbose("Service found");
                 void *servicePtr = it->second();
@@ -114,8 +114,8 @@ public:
         auto constructorIt = constructorMap.begin();
         while (constructorIt != constructorMap.end())
         {
-            ITypeWrapper *wrapper = constructorIt->first;
-            if (wrapper->GetTypeName() == typeName)
+            cobold::sys::BaseObject *wrapper = constructorIt->first;
+            if (wrapper->getTypeName() == typeName)
             {
                 logger->verbose("Service found, creating new instance");
                 void *newService = constructorIt->second(this);
@@ -128,7 +128,7 @@ public:
         }
 
         logger->verbose("Service not found and no constructor available");
-        logger->verbose(typeWrapper->GetTypeName().c_str());
+        logger->verbose(typeWrapper->getTypeName().c_str());
         delete typeWrapper; // Clean up typeWrapper
         
         return nullptr;
@@ -151,12 +151,12 @@ public:
     template <typename T>
     void updateService()
     {
-        ITypeWrapper *typeWrapper = new TypeWrapper<T>();
+        cobold::sys::BaseObject *typeWrapper = new cobold::sys::Object<T>();
         auto it = services.find(typeWrapper);
         if (it != services.end())
         {
             void *oldService = it->second();
-            void *newService = constructorMap[TypeWrapper<T>()](this);
+            void *newService = constructorMap[cobold::sys::Object<T>()](this);
             delete oldService;
             it->second = [newService]() -> void *
             { return newService; };
@@ -164,8 +164,8 @@ public:
     }
 
     // ToDo fix bad design here (should be private)
-    std::map<ITypeWrapper *, std::function<void *()>> services = {};
-    std::map<ITypeWrapper *, std::function<void *(ServiceCollection *)>> constructorMap = {};
+    std::map<cobold::sys::BaseObject *, std::function<void *()>> services = {};
+    std::map<cobold::sys::BaseObject *, std::function<void *(ServiceCollection *)>> constructorMap = {};
     private:
     cobold::Logger *logger;
 };

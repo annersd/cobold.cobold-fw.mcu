@@ -54,10 +54,10 @@ void setup()
   cobold::app->preSetup();
   cobold::app->setup();
 
-  auto webserver = cobold::app->getServices()->getService<WebServer>();
+  // auto webserver = cobold::app->getServices()->getService<WebServer>();
 
-  webserver->getServer()->on("/api/v1/system", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { AsyncJsonResponse *response = new AsyncJsonResponse(false, 4096); });
+  // webserver->getServer()->on("/api/v1/system", HTTP_GET, [](AsyncWebServerRequest *request)
+  //                            { AsyncJsonResponse *response = new AsyncJsonResponse(false, 4096); });
   // (Optional) Add sketch size and free PSRAM (if available)
   cobold::app->run();
 

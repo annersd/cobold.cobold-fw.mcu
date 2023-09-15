@@ -1,9 +1,9 @@
 #pragma once
-
+#include "Object.h"
 #include "ServiceCollection.h"
 #include "IHostBuilder.h"
 #include "IHost.h"
-#include "Object.h"
+
 #include "Event.h"
 namespace cobold
 {

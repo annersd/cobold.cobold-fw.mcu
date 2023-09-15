@@ -1,9 +1,9 @@
 #pragma once
-
+#include "Object.h"
 #include "IApplication.h"
 #include "Logger.h"
 #include "Event.h"
-#include "Object.h"
+
 
 namespace cobold
 {

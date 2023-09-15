@@ -1,6 +1,5 @@
 #pragma once
 
-#include <typeinfo>
 #include <string>
 #include <map>
 #include "XxHash_arduino.h"
@@ -81,6 +80,7 @@ namespace cobold
         public:
             Object(T *object, bool shouldDelete = false) : object(object), shouldDelete(shouldDelete) {}
 
+            Object() : object(nullptr), shouldDelete(false) {}
             ~Object()
             {
                 if (shouldDelete && object != nullptr)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Object.h"
 #include "IApplication.h"
 #include "ServiceCollection.h"
 #include "IHost.h"
@@ -7,7 +8,7 @@
 #include "IConfiguration.h"
 #include "Logger.h"
 #include "Scheduler.h"
-#include "Object.h"
+
 #include "Event.h"
 
 namespace cobold

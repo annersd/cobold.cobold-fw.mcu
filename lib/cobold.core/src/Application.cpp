@@ -1,18 +1,22 @@
+
 #include "ArduinoLog.h"
+#include <AsyncMqttClient.h>
+
+#include "Object.h"
+
 #include "Application.h"
 #include "Logger.h"
 #include "Network.h"
-#include "WebServer.h"
+
 #include "Scheduler.h"
-#include <AsyncElegantOTA.h>
-#include <WebServer.h>
+
 #include "Configuration.h"
 #include "ComponentExtensions.h"
-#include <AsyncMqttClient.h>
+
 #include "Dispatcher.h"
 #include "Event.h"
 #include "EventDispatcher.h"
-#include "Object.h"
+
 
 namespace cobold
 {
@@ -81,13 +85,13 @@ namespace cobold
                         wifiSettings->getValue("password").c_str() ); });
             });
 
-        hostBuilder->configureServices(
-            [](ServiceCollection *services) -> void
-            {
-                // Add Network service
-                services->addService<WebServer>([](ServiceCollection *services) -> void *
-                                                { return new WebServer(); });
-            });
+        // hostBuilder->configureServices(
+        //     [](ServiceCollection *services) -> void
+        //     {
+        //         // Add Network service
+        //         services->addService<WebServer>([](ServiceCollection *services) -> void *
+        //                                         { return new WebServer(); });
+        //     });
 
         hostBuilder->configureServices(
             [this](ServiceCollection *services) -> void
@@ -133,11 +137,11 @@ namespace cobold
     {
         // Implement your setup logic here
 
-        hostBuilder->configureServices(
-            [](ServiceCollection *services) -> void
-            {
-                services->addService<AsyncElegantOtaClass>(&AsyncElegantOTA);
-            });
+        // hostBuilder->configureServices(
+        //     [](ServiceCollection *services) -> void
+        //     {
+        //         services->addService<AsyncElegantOtaClass>(&AsyncElegantOTA);
+        //     });
 
         // Build the host
         host = hostBuilder->build();

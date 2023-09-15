@@ -24,7 +24,7 @@ namespace cobold
                 // Check the existing services map
                 for (auto it = serviceCollection->services.begin(); it != serviceCollection->services.end(); ++it)
                 {
-                    ITypeWrapper *typeWrapper = it->first;
+                    cobold::sys::BaseObject *typeWrapper = it->first;
 
                     if (cobold::services::ServiceCollectionExtensions<TServiceType>::IsService(typeWrapper))
                     {
@@ -41,7 +41,7 @@ namespace cobold
                 // Check the constructorMap for new services
                 for (auto constructorIt = serviceCollection->constructorMap.begin(); constructorIt != serviceCollection->constructorMap.end(); ++constructorIt)
                 {
-                    ITypeWrapper *typeWrapper = constructorIt->first;
+                    cobold::sys::BaseObject *typeWrapper = constructorIt->first;
 
                     // Compare wrapped type with TServiceType using is_base_of and typeid
                     if (cobold::services::ServiceCollectionExtensions<TServiceType>::IsService(typeWrapper))
@@ -50,9 +50,9 @@ namespace cobold
                         bool isAlreadyInServicesMap = false;
                         for (auto it = serviceCollection->services.begin(); it != serviceCollection->services.end(); ++it)
                         {
-                            ITypeWrapper *srvTypeWrapper = it->first;
+                            cobold::sys::BaseObject *srvTypeWrapper = it->first;
 
-                            if (srvTypeWrapper->GetName() == typeWrapper->GetName())
+                            if (srvTypeWrapper->getTypeName() == typeWrapper->getTypeName())
                             {
                                 isAlreadyInServicesMap = true;
                                 break;
@@ -85,15 +85,15 @@ namespace cobold
             template <typename T>
             static void AddService(ServiceCollection *serviceCollection, std::function<void *(ServiceCollection *)> constructor)
             {
-                ITypeWrapper *typeWrapper = new TypeWrapper<T>();
+                cobold::sys::BaseObject *typeWrapper = new cobold::sys::Object<T>();
 
-                typeWrapper->SetProperty(GetServiceTypeProperty(), "true");
+                typeWrapper->setProperty(GetServiceTypeProperty(), "true");
                 serviceCollection->addExternalService(typeWrapper, constructor);
             }
 
-            static bool IsService(ITypeWrapper *typeWrapper)
+            static bool IsService(cobold::sys::BaseObject *typeWrapper)
             {
-                return typeWrapper->GetProperty(GetServiceTypeProperty()) == "true";
+                return typeWrapper->getProperty(GetServiceTypeProperty()) == "true";
             }
 
             static std::string GetServiceTypeProperty()

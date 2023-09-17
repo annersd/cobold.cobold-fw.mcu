@@ -16,8 +16,8 @@ namespace cobold::services
                     auto wifiSettings = app->getAppConfiguration()
                         ->getSection("cobold.network.wifi");
 
-                    Serial.println(wifiSettings->getValue("ssid").c_str());
-                    Serial.println(wifiSettings->getValue("password").c_str());
+                    // Serial.println(wifiSettings->getValue("ssid").c_str());
+                    // Serial.println(wifiSettings->getValue("password").c_str());
 
                     return new Network(app,
                         wifiSettings->getValue("ssid").c_str() , 

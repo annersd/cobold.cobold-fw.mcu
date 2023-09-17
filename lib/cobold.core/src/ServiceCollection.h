@@ -89,7 +89,7 @@ public:
         cobold::sys::BaseObject *typeWrapper = new cobold::sys::Object<T>();
         std::string typeName = typeWrapper->getTypeName();
 
-        logger->verbose("Looking for service: %s", typeWrapper->getTypeName().c_str());
+        // logger->verbose("Looking for service: %s", typeWrapper->getTypeName().c_str());
 
         // Check in the services map
         // logger->verbose("Checking services map");
@@ -117,7 +117,7 @@ public:
             cobold::sys::BaseObject *wrapper = constructorIt->first;
             if (wrapper->getTypeName() == typeName)
             {
-                logger->verbose("Service found, creating new instance");
+                logger->verbose("[ServiceCollection] - Service '%s' found, creating new instance", typeName.c_str());
                 void *newService = constructorIt->second(this);
                 services[typeWrapper] = [newService]() -> void *
                 { return newService; };

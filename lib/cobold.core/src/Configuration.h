@@ -111,8 +111,8 @@ namespace cobold
                 // Serial.println("update");
                 for (const auto &pair : configuration->toMap())
                 {
-                    Serial.println(pair.first.c_str());
-                    Serial.println(pair.second.c_str());
+                    // Serial.println(pair.first.c_str());
+                    // Serial.println(pair.second.c_str());
                     this->setValue(pair.first, pair.second);
                 }
             }

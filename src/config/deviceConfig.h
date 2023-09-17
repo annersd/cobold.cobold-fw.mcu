@@ -9,7 +9,7 @@ char deviceConfig[] PROGMEM = R"(
       {
         "host": "192.168.0.69",
         "port": 1883,
-        "clientid": "cobold"
+        "clientid": "node-p13501"
       },
       "network": 
       { 

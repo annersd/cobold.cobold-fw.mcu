@@ -10,8 +10,8 @@ struct Temperature
 
 void createTempEventfromMqttMessage(MqttEventArgs *eventArgs)
 {
-
-  Serial.println("createTempEventfromMqttMessage");
+  cobold::Logger *logger = cobold::app->getServices()->getService<cobold::Logger>();
+  logger->debug("createTempEventfromMqttMessage");
   // if (eventArgs->topic == "cobold/temperature")
   {
     // decode json to Temperature struct
@@ -34,79 +34,39 @@ void createTempEventfromMqttMessage(MqttEventArgs *eventArgs)
     // Fetch values.
     temp->value = doc["value"];
 
-    cobold::app->raiseEvent(cobold::sys::Event::create("cobold.temperature", "Temperature",
+    cobold::app->raiseEvent(cobold::sys::Event::create("sensor1.temperature", "Temperature",
                                                        new cobold::sys::Object<Temperature>(temp)));
   }
 }
 
 void addEventSourcedTemperatureSensorSample()
 {
-  // auto mqttclient = cobold::app->getServices()->getService<AsyncMqttClient>();
 
-  // mqttclient->subscribe("cobold/temperature", 0);
-  // mqttclient->onMessage([](char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) -> void
-  //                       {
-  //                         if (strcmp(topic, "cobold/temperature") == 0)
-  //                         {
-  //                           // decode json to Temperature struct
-  //                           Temperature *temp = new Temperature();
-  //                           temp->value = 0.0f;
+ auto eventDispatcher = cobold::app->getServices()->getService<cobold::sys::EventDispatcher>();
+ 
 
-  //                           StaticJsonDocument<512> doc;
-
-  //                           // Deserialize the JSON document
-  //                           DeserializationError error = deserializeJson(doc, payload);
-
-  //                           // Test if parsing succeeds.
-  //                           if (error)
-  //                           {
-  //                             Serial.print(F("deserializeJson() failed: "));
-  //                             Serial.println(error.c_str());
-  //                             return;
-  //                           }
-
-  //                           // Fetch values.
-  //                           temp->value = doc["value"];
-
-  //                           cobold::app->raiseEvent(cobold::sys::Event::create("cobold.temperature", "Temperature",
-  //                           new cobold::sys::Object<Temperature>(temp) ));
-  //                         } });
-
-  auto eventDispatcher = cobold::app->getServices()->getService<cobold::sys::EventDispatcher>();
-
+  // Register event handler for the event 'cobold.mqtt.message'
   eventDispatcher->registerEventHandler(
       cobold::sys::EventHandler::create<MqttEventArgs>("cobold.mqtt.message", "string", [](MqttEventArgs *eventData) -> void
                                                        {
+                                                        auto logger = cobold::app->getServices()->getService<cobold::Logger>();
+
                                                           // Your event handler code here
                                                           if (eventData != nullptr)
                                                           {
-                                                            // Check if 'data' is a valid pointer to a std::string
-                                                            Serial.println("Received an mqtt message");
-                                                            Serial.println(eventData->topic);
-                                                            Serial.println(eventData->payload);
-
-                                                            if(strcmp(eventData->topic, "cobold/temperature") == 0)
+                                                            if (strcmp(eventData->topic->c_str(), "$local/sensor1/temperature") == 0)
                                                             {
 
-    // cobold::app->getServices()->getService<Scheduler>()->schedule(
-    //   0, [eventData](const Scheduler::StateObject &state) -> void
-    //                                                                 {
-    //                                                                   Serial.println("Calling event handler");
-    //                                                                   try
-    //                                                                   {
-    //                                                                     createTempEventfromMqttMessage(eventData);
-    //                                                                   }
-    //                                                                   catch (const std::exception &e)
-    //                                                                   {
-    //                                                                     Serial.println("Exception in event handler");
-    //                                                                   }
-    //                                                                 },
-    //                                                                 "", 5000, Scheduler::StateObject());
+                                                              logger->debug("Received data in event handler");
+                                                              logger->debug(eventData->topic->c_str());
+                                                              logger->debug(eventData->payload);
+
                                                               createTempEventfromMqttMessage(eventData);
                                                             }
                                                           } }));
 
-  eventDispatcher->registerEventHandler(cobold::sys::EventHandler::create<cobold::sys::Object<Temperature>>("cobold.temperature", "Temperature", [](cobold::sys::Object<Temperature> *eventData) -> void
+  // Register event handler for the event 'cobold.temperature'
+  eventDispatcher->registerEventHandler(cobold::sys::EventHandler::create<cobold::sys::Object<Temperature>>("sensor1.temperature", "Temperature", [](cobold::sys::Object<Temperature> *eventData) -> void
                                                                                                             {
                                                                               // Your event handler code here
                                                                               if (eventData != nullptr)

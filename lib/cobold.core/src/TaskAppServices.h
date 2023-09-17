@@ -23,7 +23,7 @@ namespace cobold::services
         auto task = app->getServices()->getService<dispatch_queue>();
         app->onDispatch([task, logger](std::function<void()> func) -> void
                      { 
-                        logger->verbose("dispatch");
+                        logger->verbose("[Task] - Dispatching task");
                         task->dispatch(func); 
                         });
     }

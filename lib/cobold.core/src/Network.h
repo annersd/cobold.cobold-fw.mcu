@@ -85,12 +85,14 @@ public:
 
     void setup()
     {
-        logger->debug("Starting WiFi setup");
+        logger = app->getServices()->getService<cobold::Logger>();
+        
+        logger->debug("[Network] - Starting WiFi setup");
 
         WiFi.mode(WIFI_STA);
 
-        logger->debug("Connecting to %s", ssid);
-        logger->debug("Password: %s", password);
+        // logger->debug("Connecting to %s", ssid);
+        // logger->debug("Password: %s", password);
 
         WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info)
                      { this->WiFiEvent(event, info); });
@@ -102,7 +104,7 @@ public:
             return;
         }
 
-        logger->debug("WiFi connected");
-        logger->debug("IP address: %s", WiFi.localIP().toString().c_str());
+        logger->debug("[Network] - WiFi connected");
+        logger->debug("[Network] - IP address: %s", WiFi.localIP().toString().c_str());
     };
 };

@@ -21,7 +21,7 @@
 	    "Arduino-Log" : "https://github.com/thijse/Arduino-Log.git",
         "arduino-libraries/Ethernet": "^2.0.0",
 		"ottowinter/AsyncMqttClient-esphome": "^0.8.6",
-		"gitlab-atesin/XxHash_arduin": "^2.1.0",
+		"gitlab-atesin/XxHash_arduino": "^2.1.0",
 		"robtillaart/UUID": "^0.1.5"
 		
     },

@@ -92,7 +92,7 @@ public:
         logger->verbose("Looking for service: %s", typeWrapper->getTypeName().c_str());
 
         // Check in the services map
-        logger->verbose("Checking services map");
+        // logger->verbose("Checking services map");
         auto it = services.begin();
         while (it != services.end())
         {
@@ -101,7 +101,7 @@ public:
 
             if (wrapper->getTypeName() == typeName)
             {
-                logger->verbose("Service found");
+                // logger->verbose("Service found");
                 void *servicePtr = it->second();
                 delete typeWrapper; // Clean up typeWrapper
                 return reinterpret_cast<T *>(servicePtr);
@@ -110,7 +110,7 @@ public:
         }
 
         // Check in the constructorMap
-        logger->verbose("Checking constructorMap");
+        // logger->verbose("Checking constructorMap");
         auto constructorIt = constructorMap.begin();
         while (constructorIt != constructorMap.end())
         {

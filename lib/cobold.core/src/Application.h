@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "Object.h"
 #include "IApplication.h"
 #include "ServiceCollection.h"
@@ -7,9 +8,9 @@
 #include "IHostBuilder.h"
 #include "IConfiguration.h"
 #include "Logger.h"
-#include "Scheduler.h"
-
 #include "Event.h"
+
+#include "Scheduler.h"
 
 namespace cobold
 {
@@ -26,6 +27,9 @@ namespace cobold
         void run() override;
         void dispatch(std::function<void()> function) override;
         void raiseEvent(cobold::sys::Event* event) override;
+        void onLoop(application::OnLoopCallback callback) override;
+        void onEvent(std::function<void(cobold::sys::Event*)> callback) override;
+        void onDispatch(application::OnDispatchCallback callback) override;
 
         ServiceCollection *getServices() override;
         cobold::hosting::IHost *getHost() override;
@@ -39,6 +43,9 @@ namespace cobold
         cobold::hosting::IHostBuilder *hostBuilder;
         cobold::configuration::IConfiguration *configuration;
         Logger *logger;
+        std::vector<application::OnLoopCallback> loopCallbacks;
+        std::vector<std::function<void(cobold::sys::Event*)>> eventCallbacks;
+        std::vector<std::function<void(const std::function<void(void)>& op)>> dispatchCallbacks;
     };
 
     

@@ -7,7 +7,7 @@
 #include <freertos/semphr.h>
 #include "IApplication.h"
 #include "Logger.h"
-#include "ServiceCollection.h"
+
 #include "UUID.h"
 
 class Scheduler

@@ -31,7 +31,7 @@ namespace cobold
                 }
                 else
                 {
-                    return "n/a";
+                    return "";
                 }
             }
 
@@ -82,7 +82,7 @@ namespace cobold
             {
                 cobold::configuration::IConfiguration *sectionConfig = new Configuration();
 
-                Serial.println("getSection");
+                // Serial.println("getSection");
 
                 std::string regexPattern = path + "\\..*";
                 std::regex pattern(regexPattern);
@@ -111,15 +111,15 @@ namespace cobold
                 // Serial.println("update");
                 for (const auto &pair : configuration->toMap())
                 {
-                    // Serial.println(pair.first.c_str());
-                    // Serial.println(pair.second.c_str());
+                    Serial.println(pair.first.c_str());
+                    Serial.println(pair.second.c_str());
                     this->setValue(pair.first, pair.second);
                 }
             }
 
             void loadFromJson(const char *jsonString, const std::string &prefix = "")
             {
-                StaticJsonDocument<256> jsonDoc;
+                StaticJsonDocument<1024> jsonDoc;
                 deserializeJson(jsonDoc, jsonString);
 
                 for (const JsonPair &kvp : jsonDoc.as<JsonObject>())

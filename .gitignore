@@ -6,3 +6,4 @@
 
 # exlude secrets
 src/secrets.h
+src/config/secretsConfig.h

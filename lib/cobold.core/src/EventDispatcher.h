@@ -44,22 +44,24 @@ namespace cobold
             void dispatch(Event *event)
             {
                 std::vector<EventHandler *> localHandlers = this->getItemsCopy();
-                Serial.println("EventDispatcher::dispatch-loop");
+                
+                logger->debug("Dispatching event: %s", event->getSource().c_str());
 
                 // lookup registered event handler
                 // xSemaphoreTake(this->mutex, portMAX_DELAY);
 
                 for (auto &eventHandler : localHandlers)
                 {
-                    Serial.println(eventHandler->getSource().c_str());
+                    //logger->debug("Checking event handler for event: %s", eventHandler->getSource().c_str());
+
                     if (eventHandler->getSource() == event->getSource())
                     {
                         auto eh = eventHandler->getEventHandler();
-                        logger->debug("Dispatching event: %s", event->getSource().c_str());
+                        //logger->debug("Dispatching event: %s", event->getSource().c_str());
 
                         app->dispatch([eh, event]() -> void
                                       {
-                                        Serial.println("Calling event handler");
+                                        // Serial.println("Calling event handler");
                                         try
                                         {
                                             eh(event);

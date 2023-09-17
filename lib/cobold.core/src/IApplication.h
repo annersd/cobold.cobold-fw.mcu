@@ -7,6 +7,13 @@
 #include "Event.h"
 namespace cobold
 {
+    namespace application
+    {
+        typedef std::function<void()> OnLoopCallback;
+        typedef std::function<void(cobold::sys::Event*)> OnEventCallback;
+        typedef std::function<void(const std::function<void(void)>& op)> OnDispatchCallback;
+    } // namespace application
+
     class IApplication
     {
     public:
@@ -43,6 +50,10 @@ namespace cobold
         virtual cobold::hosting::IHost *getHost() = 0;
         virtual cobold::hosting::IHostBuilder *getHostBuilder() = 0;
         virtual cobold::configuration::IConfiguration *getAppConfiguration() = 0;
+
+        virtual void onLoop(application::OnLoopCallback callback) = 0;
+        virtual void onEvent(std::function<void(cobold::sys::Event*)> callback) = 0;
+        virtual void onDispatch(application::OnDispatchCallback callback) = 0;
     };
 
     // cobold::IApplication *app = nullptr;

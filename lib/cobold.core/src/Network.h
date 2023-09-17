@@ -2,19 +2,19 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include "ArduinoJson.h"
+
 #include "Logger.h"
 #include "IApplication.h"
 
-#include "ArduinoJson.h"
-
 /**
  * @brief Class for managing the network connection.
- * 
+ *
  * This class is responsible for connecting to the IP network.
- * 
+ *
  * @todo Add support for Ethernet
  * @todo Handle WiFi connection errors carefully, especially how often to try to reconnect
-*/
+ */
 class Network
 {
 private:
@@ -67,7 +67,21 @@ private:
     }
 
 public:
-    Network(cobold::IApplication *app, String ssid, String password);
+    Network(cobold::IApplication *app, String ssid, String password){
+         this->ssid = ssid;
+    this->password = password;
+    this->app = app;
+
+    wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0, [](TimerHandle_t xTimer) -> void
+                                      {
+                                          Network *self = static_cast<Network *>(pvTimerGetTimerID(xTimer));
+                                          Serial.println("Trying to reconnect to WiFi...");
+                                          if (self != nullptr)
+                                          {
+                                              self->connectToWifi();
+                                          }
+                                      });
+    }
 
     void setup()
     {

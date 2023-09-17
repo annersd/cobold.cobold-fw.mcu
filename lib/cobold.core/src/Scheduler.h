@@ -61,7 +61,7 @@ public:
 
     Scheduler(cobold::IApplication *app)
     {
-        Serial.println("Scheduler constructor");
+        // Serial.println("Scheduler constructor");
         logger = app->getServices()->getService<cobold::Logger>();
 
         // Create a mutex to protect access to the items vector
@@ -91,7 +91,7 @@ public:
     // Call this function in your main loop to execute scheduled tasks
     void run()
     {
-        logger->debug("Scheduler run");
+        // logger->debug("Scheduler run");
 
         uint32_t currentMillis = millis();
 

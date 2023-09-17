@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-// #include <regex>
+#include <regex>
 #include <ArduinoJson.h>
 
 namespace cobold
@@ -65,15 +65,15 @@ namespace cobold
             std::vector<std::string> findKeysByRegex(const std::string &regexPattern)
             {
                 std::vector<std::string> matchingKeys;
-                // std::regex pattern(regexPattern);
+                std::regex pattern(regexPattern);
 
-                // for (const auto &pair : configMap)
-                // {
-                //     if (std::regex_match(pair.first, pattern))
-                //     {
-                //         matchingKeys.push_back(pair.first);
-                //     }
-                // }
+                for (const auto &pair : configMap)
+                {
+                    if (std::regex_match(pair.first, pattern))
+                    {
+                        matchingKeys.push_back(pair.first);
+                    }
+                }
 
                 return matchingKeys;
             }
@@ -82,26 +82,26 @@ namespace cobold
             {
                 cobold::configuration::IConfiguration *sectionConfig = new Configuration();
 
-                // Serial.println("getSection");
+                Serial.println("getSection");
 
-                // std::string regexPattern = path + "\\..*";
-                // std::regex pattern(regexPattern);
+                std::string regexPattern = path + "\\..*";
+                std::regex pattern(regexPattern);
 
-                // std::string prefix = path + ".";
-                // size_t prefixLength = prefix.length();
+                std::string prefix = path + ".";
+                size_t prefixLength = prefix.length();
 
-                // for (const auto &pair : configMap)
-                // {
+                for (const auto &pair : configMap)
+                {
 
-                //     // Serial.println(pair.first.c_str());
-                //     // Serial.println(pair.second.c_str());
-                //     if (std::regex_match(pair.first, pattern))
-                //     {
-                //         std::string shortenedKey = pair.first.substr(prefixLength);
+                    // Serial.println(pair.first.c_str());
+                    // Serial.println(pair.second.c_str());
+                    if (std::regex_match(pair.first, pattern))
+                    {
+                        std::string shortenedKey = pair.first.substr(prefixLength);
 
-                //         sectionConfig->setValue(shortenedKey, pair.second);
-                //     }
-                // }
+                        sectionConfig->setValue(shortenedKey, pair.second);
+                    }
+                }
 
                 return sectionConfig;
             }

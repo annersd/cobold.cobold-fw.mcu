@@ -7,7 +7,7 @@ const char deviceConfig[] PROGMEM = R"(
     {
       "mqtt":
       {
-        "host": "192.168.0.67",
+        "host": "192.168.0.69",
         "port": 1883,
         "clientid": "cobold"
       },

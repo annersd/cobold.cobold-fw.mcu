@@ -26,7 +26,7 @@ namespace cobold::services
                 AsyncMqttClient* mqttServer = new AsyncMqttClient();
                 mqttServer->setServer(
                     //IPAddress().fromString(mqttConfig->getValue("host").c_str()),
-                    IPAddress(192,168,0,67),
+                    IPAddress(192,168,0,69),
                     atoi(mqttConfig->getValue("port").c_str()));
 
                 mqttServer->setClientId(mqttConfig->getValue("clientid").c_str());
@@ -75,10 +75,16 @@ namespace cobold::services
                     app->raiseEvent(cobold::sys::Event::create("cobold.mqtt.disconnected", "void", ""));
                     
                     app->getServices()->getService<Scheduler>()->schedule(
-                        1000, [app](const Scheduler::StateObject &state) -> void
+                        4000, [app](const Scheduler::StateObject &state) -> void
                         { 
-                            Serial.println("Reconnecting to MQTT...");
-                            app->getServices()->getService<AsyncMqttClient>()->connect();
+                            auto mqttClient = app->getServices()->getService<AsyncMqttClient>();
+                            if(mqttClient->connected())
+                                Serial.println("MQTT is connected");
+                            else
+                            {
+                                Serial.println("Reconnecting to MQTT...");
+                                app->getServices()->getService<AsyncMqttClient>()->connect();
+                            }
                         },
                         "MQTTReconnect", 10000, Scheduler::StateObject());
                 });

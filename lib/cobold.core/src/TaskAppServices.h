@@ -11,7 +11,7 @@ namespace cobold::services
                                                  {
             // Add  service
             services->addService<dispatch_queue>([app](ServiceCollection *services) -> void *
-                { return new dispatch_queue("main"); });
+                { return new dispatch_queue("main", 1, 4096*4); });
              });
     }
 

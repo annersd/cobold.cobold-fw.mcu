@@ -1,7 +1,7 @@
 #pragma once
 #include "Arduino.h"
 
-const char deviceConfig[] PROGMEM = R"(
+char deviceConfig[] PROGMEM = R"(
   {
     "cobold":
     {

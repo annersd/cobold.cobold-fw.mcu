@@ -8,12 +8,20 @@
 #include <ArduinoJson.h>
 #include <ArduinoLog.h>
 
+#include <vector>
+#include <string>
+#include <map>
+#include <functional>
+#include <regex>
+
 #include "Object.h"
 #include "Event.h"
 #include "Logger.h"
 #include "IApplication.h"
 #include "ServiceCollection.h"
 #include "ServiceCollectionExtensions.h"
+#include "Options.h"
+
 
 // Include Hosting
 #include "IHost.h"

@@ -6,6 +6,7 @@
 
 #include "Logger.h"
 #include "IApplication.h"
+#include "IConfiguration.h"
 
 /**
  * @brief Class for managing the network connection.
@@ -26,7 +27,7 @@ private:
 
     void connectToWifi()
     {
-        Serial.println("Connecting to Wi-Fi...");
+        logger->info("[Network] Connecting to %s", ssid.c_str());
         WiFi.begin(ssid, password);
     }
 
@@ -67,27 +68,27 @@ private:
     }
 
 public:
-    Network(cobold::IApplication *app, String ssid, String password){
-         this->ssid = ssid;
-    this->password = password;
-    this->app = app;
-
-    wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0, [](TimerHandle_t xTimer) -> void
-                                      {
-                                          Network *self = static_cast<Network *>(pvTimerGetTimerID(xTimer));
-                                          Serial.println("Trying to reconnect to WiFi...");
-                                          if (self != nullptr)
-                                          {
-                                              self->connectToWifi();
-                                          }
-                                      });
+    Network(cobold::IApplication *app, cobold::configuration::IConfiguration *wifiSettings)
+    {
+        this->ssid =  wifiSettings->getValue("ssid").c_str();
+        this->password = wifiSettings->getValue("password").c_str(); 
+        this->app = app;
     }
 
     void setup()
     {
         logger = app->getServices()->getService<cobold::Logger>();
+
+        wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0, [](TimerHandle_t xTimer) -> void
+                                      {
+                                          Network *self = static_cast<Network *>(pvTimerGetTimerID(xTimer));
+                                          if (self != nullptr)
+                                          {
+                                              self->connectToWifi();
+                                          }
+                                      });
         
-        logger->debug("[Network] - Starting WiFi setup");
+        logger->debug("[Network] Starting WiFi setup");
 
         WiFi.mode(WIFI_STA);
 
@@ -100,11 +101,11 @@ public:
         connectToWifi();
         if (WiFi.waitForConnectResult() != WL_CONNECTED)
         {
-            logger->fatal("WiFi Failed!");
+            logger->fatal("[Network] WiFi Failed!");
             return;
         }
 
-        logger->debug("[Network] - WiFi connected");
-        logger->debug("[Network] - IP address: %s", WiFi.localIP().toString().c_str());
+        logger->debug("[Network] WiFi connected");
+        logger->debug("[Network] IP address: %s", WiFi.localIP().toString().c_str());
     };
 };

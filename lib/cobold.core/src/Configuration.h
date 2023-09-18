@@ -22,7 +22,7 @@ namespace cobold
             {
             }
 
-            std::string getValue(const std::string &key)
+            std::string getValue(const std::string &key, const std::string &defaultValue = "")
             {
                 auto it = configMap.find(key);
                 if (it != configMap.end())
@@ -31,7 +31,7 @@ namespace cobold
                 }
                 else
                 {
-                    return "";
+                    return defaultValue;
                 }
             }
 

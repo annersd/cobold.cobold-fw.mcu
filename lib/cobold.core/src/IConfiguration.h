@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace cobold
 {
@@ -13,7 +14,7 @@ namespace cobold
         public:
             virtual ~IConfiguration() {}
 
-            virtual std::string getValue(const std::string &key) = 0;
+            virtual std::string getValue(const std::string &key, const std::string &defaultValue = "") = 0;
 
             virtual void setValue(const std::string &key, const std::string &value) = 0;
 

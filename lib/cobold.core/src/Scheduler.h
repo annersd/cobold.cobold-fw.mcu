@@ -18,7 +18,7 @@ public:
         void *state;
     };
 
-    using ScheduleTask = std::function<void(StateObject &)>;
+    using ScheduleFunc = std::function<void(StateObject &)>;
 
     struct SchedulerItem
     {
@@ -36,11 +36,11 @@ public:
             uint32_t timeout;
         };
         uint32_t executionTime;
-        ScheduleTask task;
+        ScheduleFunc scheduleFunc;
         StateObject stateObj;
 
-        SchedulerItem(const std::string &n, Type t, uint32_t val, uint32_t execTime, const ScheduleTask &tsk, const StateObject &state)
-            : name(n), type(t), executionTime(execTime), task(tsk), stateObj(state)
+        SchedulerItem(const std::string &n, Type t, uint32_t val, uint32_t execTime, const ScheduleFunc &tsk, const StateObject &state)
+            : name(n), type(t), executionTime(execTime), scheduleFunc(tsk), stateObj(state)
         {
             if (type == TIMEOUT)
             {
@@ -61,7 +61,7 @@ public:
 
     Scheduler(cobold::IApplication *app)
     {
-        // Serial.println("Scheduler constructor");
+        this->app = app;
         logger = app->getServices()->getService<cobold::Logger>();
 
         // Create a mutex to protect access to the items vector
@@ -74,17 +74,17 @@ public:
         vSemaphoreDelete(itemsMutex);
     }
 
-    // Schedule a task to run after a certain delay (in milliseconds)
-    void schedule(uint32_t delayMs, const ScheduleTask &task, const std::string &name, uint32_t timeout, const StateObject &state)
+    // Schedule a scheduleFunc to run after a certain delay (in milliseconds)
+    void schedule(uint32_t delayMs, const ScheduleFunc &scheduleFunc, const std::string &name, uint32_t timeout, const StateObject &state)
     {
-        SchedulerItem item = {name, SchedulerItem::TIMEOUT, timeout, millis() + delayMs, task, state};
+        SchedulerItem item = {name, SchedulerItem::TIMEOUT, timeout, millis() + delayMs, scheduleFunc, state};
         addItem(item);
     }
 
-    // Schedule a task to run at intervals (in milliseconds)
-    void scheduleInterval(uint32_t intervalMs, const ScheduleTask &task, const std::string &name, uint32_t interval, const StateObject &state)
+    // Schedule a scheduleFunc to run at intervals (in milliseconds)
+    void scheduleInterval(uint32_t intervalMs, const ScheduleFunc &scheduleFunc, const std::string &name, uint32_t interval, const StateObject &state)
     {
-        SchedulerItem item = {name, SchedulerItem::INTERVAL, interval, millis() + intervalMs, task, state};
+        SchedulerItem item = {name, SchedulerItem::INTERVAL, interval, millis() + intervalMs, scheduleFunc, state};
         addItem(item);
     }
 
@@ -95,8 +95,12 @@ public:
 
         uint32_t currentMillis = millis();
 
-        // Get a copy of the items
-        // This is done to avoid locking the mutex for too long
+        /*  Get a copy of the items
+         *  This is done to avoid locking the mutex for too long
+         *  If we would lock the mutex for the whole run, we would not be able to add new items
+         *  while the scheduler is running
+         *  This means also, that deleting an item will not take effect until the next run
+         */
         auto copiedItems = getItemsCopy();
 
         for (auto it = copiedItems.begin(); it != copiedItems.end();)
@@ -104,8 +108,13 @@ public:
             if (currentMillis >= it->executionTime)
             {
 
-                // run the task
-                it->task(it->stateObj);
+                /* run the scheduleFunc
+                *  We execute the function not in a scheduleFunc dispatcher.
+                *  This means, that the scheduleFunc will run in the same context as the scheduler.
+                *  By doing this we prevent flooding the scheduleFunc dispatcher with tasks and
+                *  reduce the psoibility to exhaust the device resources.
+                */
+                it->scheduleFunc(it->stateObj);
 
                 if (it->type == SchedulerItem::INTERVAL)
                 {
@@ -114,8 +123,7 @@ public:
                 else
                 {
                     // Delete the item from the original vector
-                    //deleteItemByReference(*it);
-                    deleteItem(it->uuid.toCharArray());
+                    deleteItemByID(it->uuid.toCharArray());
                 }
                 ++it;
             }
@@ -174,21 +182,16 @@ public:
     }
 
     // Method to delete a scheduler item by reference
-    void deleteItem(char *uuid)
+    void deleteItemByID(char *uuid)
     {
         // Take the mutex to protect access to the items vector
         xSemaphoreTake(itemsMutex, portMAX_DELAY);
 
-        // Serial.println("Deleting item");
-
         auto it = items.begin();
         while (it != items.end())
         {
-            // Serial.println(it->uuid.toCharArray());
-            // Serial.println(uuid);
-            if ( strcmp(it->uuid.toCharArray(), uuid) == 0)
+            if (strcmp(it->uuid.toCharArray(), uuid) == 0)
             {
-                // Serial.println("Deleting item");
                 it = items.erase(it);
             }
             else
@@ -205,6 +208,7 @@ private:
     std::vector<SchedulerItem> items;
     SemaphoreHandle_t itemsMutex;
     cobold::Logger *logger;
+    cobold::IApplication *app;
 
     void addItem(const SchedulerItem &item)
     {

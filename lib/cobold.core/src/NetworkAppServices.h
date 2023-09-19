@@ -11,7 +11,7 @@ namespace cobold::services
         app->getHostBuilder()->configureServices([app](ServiceCollection *services) -> void
                                                  {
             // Add Network service
-            services->addService<Network>([app](ServiceCollection *services) -> void *
+            services->addService<cobold::sys::Network>([app](ServiceCollection *services) -> void *
                 { 
                     auto wifiSettings = app->getAppConfiguration()
                         ->getSection("cobold.network.wifi");
@@ -19,7 +19,7 @@ namespace cobold::services
                     // Serial.println(wifiSettings->getValue("ssid").c_str());
                     // Serial.println(wifiSettings->getValue("password").c_str());
 
-                    return new Network(app,wifiSettings);
+                    return new cobold::sys::Network(app,wifiSettings);
                   
                 }); });
     }
@@ -27,7 +27,7 @@ namespace cobold::services
     void UseNetworkService(cobold::IApplication *app)
     {
         cobold::Logger *logger = app->getServices()->getService<cobold::Logger>();
-        Network *network = app->getServices()->getService<Network>();
+        cobold::sys::Network *network = app->getServices()->getService<cobold::sys::Network>();
 
         // Get the Network service
         logger->info("Setup Network");

@@ -55,16 +55,16 @@ namespace cobold::sys
                     auto eh = eventHandler->getEventHandler();
                     // logger->debug("Dispatching event: %s", event->getSource().c_str());
 
-                    app->dispatch([eh, event]() -> void
+                    auto log = logger;
+                    app->dispatch([eh, event, log]() -> void
                                   {
-                                    // Serial.println("Calling event handler");
                                     try
                                     {
                                         eh(event);
                                     }
                                     catch(const std::exception& e)
                                     {
-                                        Serial.println("Exception in event handler");
+                                        log->error("[EventDispatcher] - Exception in event handler: %s", e.what());
                                     } });
                 }
             }

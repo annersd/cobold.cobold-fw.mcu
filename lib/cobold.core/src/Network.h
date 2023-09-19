@@ -8,104 +8,108 @@
 #include "IApplication.h"
 #include "IConfiguration.h"
 
-/**
- * @brief Class for managing the network connection.
- *
- * This class is responsible for connecting to the IP network.
- *
- * @todo Add support for Ethernet
- * @todo Handle WiFi connection errors carefully, especially how often to try to reconnect
- */
-class Network
+namespace cobold::sys
 {
-private:
-    String ssid;
-    String password;
-    cobold::Logger *logger;
-    cobold::IApplication *app;
-    TimerHandle_t wifiReconnectTimer;
 
-    void connectToWifi()
+    /**
+     * @brief Class for managing the network connection.
+     *
+     * This class is responsible for connecting to the IP network.
+     *
+     * @todo Add support for Ethernet
+     * @todo Handle WiFi connection errors carefully, especially how often to try to reconnect
+     */
+    class Network
     {
-        logger->info("[Network] Connecting to %s", ssid.c_str());
-        WiFi.begin(ssid, password);
-    }
+    private:
+        String ssid;
+        String password;
+        cobold::Logger *logger;
+        cobold::IApplication *app;
+        TimerHandle_t wifiReconnectTimer;
 
-    void WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
-    {
-        switch (event)
+        void connectToWifi()
         {
-        case SYSTEM_EVENT_WIFI_READY:
-            logger->info("[WiFi-event] WiFi interface ready");
-            break;
-        case SYSTEM_EVENT_SCAN_DONE:
-            logger->info("[WiFi-event] Completed scan for access points");
-            break;
-        case SYSTEM_EVENT_STA_START:
-            logger->info("[WiFi-event] WiFi client started");
-            break;
-        case SYSTEM_EVENT_STA_STOP:
-            logger->info("[WiFi-event] WiFi clients stopped");
-            // start the timer to try to reconnect to WiFi every in 2 seconds
-            xTimerStart(wifiReconnectTimer, 0);
-            break;
-        case SYSTEM_EVENT_STA_CONNECTED:
-            logger->info("[WiFi-event] Connected to access point");
-            break;
-        case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
-            logger->info("[WiFi-event] Authentication mode of access point has changed");
-            break;
-        case SYSTEM_EVENT_STA_GOT_IP:
-            logger->info("[WiFi-event] WiFi connected; IP address: %s", WiFi.localIP().toString());
-            app->raiseEvent(cobold::sys::Event::create("cobold.network.connected", "void", ""));
-            break;
-        case SYSTEM_EVENT_STA_DISCONNECTED:
-            logger->info("[WiFi-event] WiFi lost connection");
-            // start the timer to try to reconnect to WiFi every in 2 seconds
-            xTimerStart(wifiReconnectTimer, 0);
-            break;
+            logger->info("[Network] Connecting to %s", ssid.c_str());
+            WiFi.begin(ssid, password);
         }
-    }
 
-public:
-    Network(cobold::IApplication *app, cobold::configuration::IConfiguration *wifiSettings)
-    {
-        this->ssid =  wifiSettings->getValue("ssid").c_str();
-        this->password = wifiSettings->getValue("password").c_str(); 
-        this->app = app;
-    }
+        void WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
+        {
+            switch (event)
+            {
+            case SYSTEM_EVENT_WIFI_READY:
+                logger->info("[WiFi-event] WiFi interface ready");
+                break;
+            case SYSTEM_EVENT_SCAN_DONE:
+                logger->info("[WiFi-event] Completed scan for access points");
+                break;
+            case SYSTEM_EVENT_STA_START:
+                logger->info("[WiFi-event] WiFi client started");
+                break;
+            case SYSTEM_EVENT_STA_STOP:
+                logger->info("[WiFi-event] WiFi clients stopped");
+                // start the timer to try to reconnect to WiFi every in 2 seconds
+                xTimerStart(wifiReconnectTimer, 0);
+                break;
+            case SYSTEM_EVENT_STA_CONNECTED:
+                logger->info("[WiFi-event] Connected to access point");
+                break;
+            case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
+                logger->info("[WiFi-event] Authentication mode of access point has changed");
+                break;
+            case SYSTEM_EVENT_STA_GOT_IP:
+                logger->info("[WiFi-event] WiFi connected; IP address: %s", WiFi.localIP().toString());
+                app->raiseEvent(cobold::sys::Event::create("cobold.network.connected", "void", ""));
+                break;
+            case SYSTEM_EVENT_STA_DISCONNECTED:
+                logger->info("[WiFi-event] WiFi lost connection");
+                // start the timer to try to reconnect to WiFi every in 2 seconds
+                xTimerStart(wifiReconnectTimer, 0);
+                break;
+            }
+        }
 
-    void setup()
-    {
-        logger = app->getServices()->getService<cobold::Logger>();
+    public:
+        Network(cobold::IApplication *app, cobold::configuration::IConfiguration *wifiSettings)
+        {
+            this->ssid = wifiSettings->getValue("ssid").c_str();
+            this->password = wifiSettings->getValue("password").c_str();
+            this->app = app;
+        }
 
-        wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0, [](TimerHandle_t xTimer) -> void
-                                      {
+        void setup()
+        {
+            logger = app->getServices()->getService<cobold::Logger>();
+
+            wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0, [](TimerHandle_t xTimer) -> void
+                                              {
                                           Network *self = static_cast<Network *>(pvTimerGetTimerID(xTimer));
                                           if (self != nullptr)
                                           {
                                               self->connectToWifi();
-                                          }
-                                      });
-        
-        logger->debug("[Network] Starting WiFi setup");
+                                          } });
 
-        WiFi.mode(WIFI_STA);
+            logger->debug("[Network] Starting WiFi setup");
 
-        // logger->debug("Connecting to %s", ssid);
-        // logger->debug("Password: %s", password);
+            WiFi.mode(WIFI_STA);
 
-        WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info)
-                     { this->WiFiEvent(event, info); });
+            // logger->debug("Connecting to %s", ssid);
+            // logger->debug("Password: %s", password);
 
-        connectToWifi();
-        if (WiFi.waitForConnectResult() != WL_CONNECTED)
-        {
-            logger->fatal("[Network] WiFi Failed!");
-            return;
-        }
+            WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info)
+                         { this->WiFiEvent(event, info); });
 
-        logger->debug("[Network] WiFi connected");
-        logger->debug("[Network] IP address: %s", WiFi.localIP().toString().c_str());
+            connectToWifi();
+            if (WiFi.waitForConnectResult() != WL_CONNECTED)
+            {
+                logger->fatal("[Network] WiFi Failed!");
+                return;
+            }
+
+            logger->debug("[Network] WiFi connected");
+            logger->debug("[Network] IP address: %s", WiFi.localIP().toString().c_str());
+        };
     };
-};
+
+} // namespace cobold::sys

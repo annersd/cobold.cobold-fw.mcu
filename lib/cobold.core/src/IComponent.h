@@ -24,7 +24,7 @@ namespace cobold
 
             /**
              * @brief Initialize the component.
-             * Implementing classes should perform necessary setup or initialization tasks.
+             * Implementing classes should perform necessary initialization tasks.
              */
             virtual void initialize() = 0;
         };

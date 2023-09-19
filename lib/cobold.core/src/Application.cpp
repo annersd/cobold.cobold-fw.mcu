@@ -49,12 +49,6 @@ namespace cobold
     {
         // Implement your setup logic here
 
-        // hostBuilder->configureServices(
-        //     [](ServiceCollection *services) -> void
-        //     {
-        //         services->addService<AsyncElegantOtaClass>(&AsyncElegantOTA);
-        //     });
-
         // Build the host
         host = hostBuilder->build();
 
@@ -64,7 +58,6 @@ namespace cobold
         // Get the logger
         logger = services->getService<Logger>();
 
-        
     }
 
     void Application::loop()

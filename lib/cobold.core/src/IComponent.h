@@ -9,7 +9,8 @@ namespace cobold
 
         /**
          * @class IComponent
-         * @brief The IComponent interface defines a contract for components that require update and initialization behavior.
+         * @brief The IComponent interface defines a contract for physical components that require
+         *        update and initialization behavior.
          */
         class IComponent
         {

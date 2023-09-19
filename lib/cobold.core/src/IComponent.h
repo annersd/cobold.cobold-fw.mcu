@@ -28,6 +28,19 @@ namespace cobold
              * Implementing classes should perform necessary initialization tasks.
              */
             virtual void initialize() = 0;
+
+            /**
+             * @brief Configure the component.
+             * Implementing classes should perform necessary configuration tasks.
+             */
+            virtual void configure() = 0;
+
+            /**
+             * @brief Get the name of the component.
+             * Implementing classes should return a string that identifies the component.
+             * @return std::string
+             */
+            virtual std::string getName() const = 0;
         };
     }
 }

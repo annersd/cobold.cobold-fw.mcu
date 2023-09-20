@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace cobold
 {
 
@@ -41,6 +43,8 @@ namespace cobold
              * @return std::string
              */
             virtual std::string getName() const = 0;
+
+            virtual std::string getId() const = 0;
         };
     }
 }

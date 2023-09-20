@@ -10,6 +10,7 @@
 #include "EventAppServices.h"
 #include "TaskAppServices.h"
 #include "NodeAppServices.h"
+#include "ComponentAppServices.h"
 
 namespace cobold::application
 {
@@ -34,6 +35,7 @@ namespace cobold::application
         cobold::services::AddMqttClientService(app);
 
         cobold::services::AddNodeService(app);
+        cobold::services::AddComponentService(app);
     }
 
     void defaultSetup(IApplication *app)
@@ -48,6 +50,7 @@ namespace cobold::application
         cobold::services::UseMqttClientService(app);
 
         cobold::services::UseNodeService(app);
+        cobold::services::UseComponentService(app);
     }
 
 }

@@ -8,6 +8,8 @@
 #include "Application.h"
 #include "Configuration.h"
 
+#include "ComponentExtensions.h"
+
 namespace cobold
 {
     Application::Application(cobold::hosting::IHostBuilder *hostBuilder)
@@ -81,7 +83,7 @@ namespace cobold
         // }
 
         // as long as the scheduler is running from the outer loop, we delay here
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
     void Application::run()

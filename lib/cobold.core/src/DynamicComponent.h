@@ -16,14 +16,13 @@ namespace cobold::components
     class DynamicComponent : public Component
     {
     private:
-        std::function<void(DynamicComponent<TBoundObject> *)> initialize_func;
-        std::function<void(DynamicComponent<TBoundObject> *)> update_func;
-        std::function<void(DynamicComponent<TBoundObject> *)> configure_func;
+        std::function<void(DynamicComponent<TBoundObject> *)> initialize_func = nullptr;
+        std::function<void(DynamicComponent<TBoundObject> *)> update_func = nullptr;
+        std::function<void(DynamicComponent<TBoundObject> *)> configure_func = nullptr;
 
     public:
-
         cobold::sys::Object<TBoundObject> *bound_object;
-    
+
         /**
          * @brief Construct a new DynamicComponent object
          */
@@ -36,17 +35,20 @@ namespace cobold::components
 
         virtual void initialize_impl() override
         {
-            initialize_func(this);
+            if (initialize_func != nullptr)
+                initialize_func(this);
         }
 
         virtual void update_impl() override
         {
-            update_func(this);
+            if (update_func != nullptr)
+                update_func(this);
         }
 
         virtual void configure_impl() override
         {
-            configure_func(this);
+            if (configure_func != nullptr)
+                configure_func(this);
         }
 
         void bind_initialize(std::function<void(DynamicComponent<TBoundObject> *)> initialize)

@@ -13,7 +13,7 @@ namespace cobold::components
      */
     class Component : public IComponent
     {
-    private:
+    protected:
         // The display name of the component
         std::string name_;
 
@@ -34,17 +34,26 @@ namespace cobold::components
         /**
          * @brief Initialize the component
          */
-        virtual void initialize() override;
+        virtual void initialize() override
+        {
+            initialize_impl();
+        }
 
         /**
          * @brief Update the component
          */
-        virtual void update() override;
+        virtual void update() override
+        {
+            update_impl();
+        }
 
         /**
          * @brief Configure the component
          */
-        virtual void configure() override;
+        virtual void configure() override
+        {
+            configure_impl();
+        }
 
         /**
          * @brief Get the name of the component
@@ -65,20 +74,31 @@ namespace cobold::components
             return identifier_;
         }
 
+        void setName(std::string name)
+        {
+            name_ = name;
+        }
+
+        void setId(std::string id)
+        {
+            identifier_ = id;
+        }
+        
+
     protected:
         /**
          * @brief Initialize the component
          */
-        virtual void initialize_impl() = 0;
+        virtual void initialize_impl(){};
 
         /**
          * @brief Update the component
          */
-        virtual void update_impl() = 0;
+        virtual void update_impl(){};
 
         /**
          * @brief Configure the component
          */
-        virtual void configure_impl() = 0;
+        virtual void configure_impl(){};
     };
 }

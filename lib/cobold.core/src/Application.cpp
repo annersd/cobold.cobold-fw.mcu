@@ -73,6 +73,7 @@ namespace cobold
             callback();
         }
 
+       
         // auto components = cobold::components::ComponentExtensions::GetComponents(getServices());
 
         // // call update on each component

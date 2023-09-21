@@ -11,8 +11,7 @@ namespace cobold::services
                                                  {
             // Add  service
             services->addService<cobold::components::ComponentSvc>([app](ServiceCollection *services) -> void *
-                { return new cobold::components::ComponentSvc(app); });
-             });
+                { return new cobold::components::ComponentSvc(app); }); });
     }
 
     void UseComponentService(cobold::IApplication *app)
@@ -22,5 +21,8 @@ namespace cobold::services
 
         auto componentSvc = app->getServices()->getService<cobold::components::ComponentSvc>();
         componentSvc->setup();
+
+        app->onLoop([componentSvc]() -> void
+                    { componentSvc->update(); });
     }
 }

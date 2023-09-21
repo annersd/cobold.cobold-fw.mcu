@@ -35,6 +35,8 @@
 
 #include "IComponent.h"
 #include "ComponentExtensions.h"
+#include "Component.h"
+#include "DynamicComponent.h"
 
 #include "Scheduler.h"
 #include "EventDispatcher.h"
@@ -59,6 +61,7 @@
 
 #include "Network.h"
 
+#include "ComponentSvc.h"
 
 namespace cobold
 {

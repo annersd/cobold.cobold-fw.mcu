@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include <functional>
+#include "Object.h"
 
 namespace cobold::components
 {
@@ -11,14 +12,18 @@ namespace cobold::components
      * @brief The DynamicComponent class is a base class for physical components that require
      *        update and initialization behavior.
      */
+    template <typename TBoundObject>
     class DynamicComponent : public Component
     {
-        private:
-        std::function<void(DynamicComponent*)> initialize_func;
-        std::function<void(DynamicComponent*)> update_func;
-        std::function<void(DynamicComponent*)> configure_func;
+    private:
+        std::function<void(DynamicComponent<TBoundObject> *)> initialize_func;
+        std::function<void(DynamicComponent<TBoundObject> *)> update_func;
+        std::function<void(DynamicComponent<TBoundObject> *)> configure_func;
+
     public:
-        
+
+        cobold::sys::Object<TBoundObject> *bound_object;
+    
         /**
          * @brief Construct a new DynamicComponent object
          */
@@ -44,22 +49,20 @@ namespace cobold::components
             configure_func(this);
         }
 
-        void bind_initialize(std::function<void(DynamicComponent*)> initialize)
+        void bind_initialize(std::function<void(DynamicComponent<TBoundObject> *)> initialize)
         {
             this->initialize_func = initialize;
         }
 
-        void bind_update(std::function<void(DynamicComponent*)> update)
+        void bind_update(std::function<void(DynamicComponent<TBoundObject> *)> update)
         {
             this->update_func = update;
         }
 
-        void bind_configure(std::function<void(DynamicComponent*)> configure)
+        void bind_configure(std::function<void(DynamicComponent<TBoundObject> *)> configure)
         {
             this->configure_func = configure;
         }
-
-             
     };
 
 } // namespace cobold::components

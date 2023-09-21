@@ -41,24 +41,26 @@ void addCommonSample_ListenToAllMqttMessages()
 void addDynamicComponent()
 {
     auto componentSvc = cobold::app->getServices()->getService<cobold::components::ComponentSvc>();
-    auto component = new cobold::components::DynamicComponent();
+    auto component = new cobold::components::DynamicComponent<int>();
 
     // Bind initialize, update, and configure functions with lambdas that accept DynamicComponent by reference
-    component->bind_initialize([](cobold::components::DynamicComponent* componentInstance) -> void
+    component->bind_initialize([](cobold::components::DynamicComponent<int>* componentInstance) -> void
     {
         Serial.println("DynamicComponent initialized");
     });
 
-    component->bind_update([](cobold::components::DynamicComponent* componentInstance) -> void
+    component->bind_update([](cobold::components::DynamicComponent<int>* componentInstance) -> void
     {
         Serial.println("DynamicComponent updated");
     });
 
-    component->bind_configure([](cobold::components::DynamicComponent* componentInstance) -> void
+    component->bind_configure([](cobold::components::DynamicComponent<int>* componentInstance) -> void
     {
         componentInstance->setName("DynamicComponent");
         componentInstance->setId("DynamicComponent");
         Serial.println("DynamicComponent configured");
+
+        componentInstance->bound_object = new cobold::sys::Object<int>(new int(42));
     });
 
 

@@ -16,7 +16,23 @@ namespace cobold
 
             virtual std::string getValue(const std::string &key, const std::string &defaultValue = "") = 0;
 
+            virtual int getInt(const std::string &key, int defaultValue = 0) = 0;
+
+            virtual float getFloat(const std::string &key, float defaultValue = 0.0f) = 0;
+
+            virtual bool getBool(const std::string &key, bool defaultValue = false) = 0;
+
+            virtual std::string getString(const std::string &key, const std::string &defaultValue = "") = 0;
+
             virtual void setValue(const std::string &key, const std::string &value) = 0;
+
+            virtual void setInt(const std::string &key, int value) = 0;
+
+            virtual void setFloat(const std::string &key, float value) = 0;
+
+            virtual void setBool(const std::string &key, bool value) = 0;
+
+            virtual void setString(const std::string &key, const std::string &value) = 0;
 
             virtual void deleteKey(const std::string &key) = 0;
 

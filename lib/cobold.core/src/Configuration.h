@@ -33,10 +33,84 @@ namespace cobold
                 }
             }
 
+            int getInt(const std::string &key, int defaultValue = 0)
+            {
+                auto it = configMap.find(key);
+                if (it != configMap.end())
+                {
+                    return std::stoi(it->second);
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            }
+
+            float getFloat(const std::string &key, float defaultValue = 0.0f)
+            {
+                auto it = configMap.find(key);
+                if (it != configMap.end())
+                {
+                    return std::stof(it->second);
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            }
+
+            bool getBool(const std::string &key, bool defaultValue = false)
+            {
+                auto it = configMap.find(key);
+                if (it != configMap.end())
+                {
+                    return it->second == "true";
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            }
+
+            std::string getString(const std::string &key, const std::string &defaultValue = "")
+            {
+                auto it = configMap.find(key);
+                if (it != configMap.end())
+                {
+                    return it->second;
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            }
+
             void setValue(const std::string &key, const std::string &value)
             {
                 configMap[key] = value;
             }
+
+            void setInt(const std::string &key, int value)
+            {
+                configMap[key] = std::to_string(value);
+            }          
+
+            void setFloat(const std::string &key, float value)
+            {
+                configMap[key] = std::to_string(value);
+            }
+
+            void setBool(const std::string &key, bool value)
+            {
+                configMap[key] = value ? "true" : "false";
+            }
+
+            void setString(const std::string &key, const std::string &value)
+            {
+                configMap[key] = value;
+            }
+            
+              
 
             void deleteKey(const std::string &key)
             {

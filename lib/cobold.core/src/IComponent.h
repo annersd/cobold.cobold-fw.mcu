@@ -44,6 +44,14 @@ namespace cobold
              */
             virtual std::string getName() const = 0;
 
+            /**
+             * @brief Get the id of the component.
+             * Implementing classes should return a string that identifies the component.
+             * This id should be unique among all components.
+             * This id matches the path of the component in the component tree, the configuration
+             * and the mqtt path (the pathseperator here is a dot but can also be a slash e.g. in the mqtt topic).
+             * @return std::string
+             */
             virtual std::string getId() const = 0;
         };
     }

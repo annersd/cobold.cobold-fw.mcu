@@ -22,6 +22,7 @@ namespace cobold::components
         ComponentSvc(cobold::IApplication *app) : app(app) {
             logger = app->getServices()->getService<cobold::Logger>();
             logger->info("Create Component Service");
+            components = std::vector<IComponent *>();
         }
 
         void setup()
@@ -49,6 +50,8 @@ namespace cobold::components
             {
                 component->update();
             }
+
+            logger->info("Update Components Done");
         }
 
         void configure()

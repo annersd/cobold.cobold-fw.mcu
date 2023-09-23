@@ -69,12 +69,12 @@ namespace cobold::components
         }
 
 
-        IComponent *getComponent(std::string id)
+        IComponent *getComponent(std::string identifier)
         {
             // return the component with the given id
             for (auto component : components)
             {
-                if (component->getId() == id)
+                if (component->getId() == identifier)
                 {
                     return component;
                 }

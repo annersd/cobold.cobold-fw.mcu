@@ -67,3 +67,15 @@ namespace cobold
 {
     cobold::IApplication *app;
 } // namespace cobold
+
+
+namespace cobold::components
+{
+    template <typename TComponet>
+    TComponet *getComponent(const char *identifier)
+    {
+        auto component = cobold::app->getServices()->getService<ComponentSvc>()
+            ->getComponent(identifier);
+        return dynamic_cast<TComponet *>(component);
+    }
+} // namespace cobold::components

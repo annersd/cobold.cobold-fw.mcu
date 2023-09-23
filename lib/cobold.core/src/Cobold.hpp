@@ -87,4 +87,9 @@ namespace cobold::services
     {
         return cobold::app->getServices()->getService<TService>();
     }
+
+    cobold::Logger *getLogger()
+    {
+        return cobold::app->getServices()->getService<Logger>();
+    }
 } // namespace cobold::services 

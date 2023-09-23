@@ -79,6 +79,8 @@ namespace cobold::components
                     return component;
                 }
             }
+
+            return nullptr;
         }
 
         void removeComponent(std::string id)

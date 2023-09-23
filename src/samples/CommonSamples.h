@@ -69,9 +69,22 @@ void addDynamicComponent()
     componentSvc->addComponent(component);
 }
 
+void printBoardInfo(){
+
+  auto logger = cobold::services::getLogger();
+  logger->info("Board info: %s", ESP.getChipModel());
+  logger->info("Board info: %s", ESP.getSdkVersion());
+
+  logger->info("Free heap: %d", ESP.getFreeHeap());
+  logger->info("Free sketch space: %d", ESP.getFreeSketchSpace());
+  logger->info("Free PSRAM: %d", ESP.getFreePsram());
+
+
+}
 
 void addCommonSamples()
 {
+  printBoardInfo();
   addCommonSample_HostRunning();
   // addCommonSample_ListenToAllMqttMessages();
   addDynamicComponent();

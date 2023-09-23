@@ -79,3 +79,12 @@ namespace cobold::components
         return dynamic_cast<TComponet *>(component);
     }
 } // namespace cobold::components
+
+namespace cobold::services
+{
+    template <typename TService>
+    TService *getService()
+    {
+        return cobold::app->getServices()->getService<TService>();
+    }
+} // namespace cobold::services 

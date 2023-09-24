@@ -8,17 +8,40 @@
 namespace cobold::sys
 {
 
+    /**
+     * @brief Base class for event arguments
+     * @details This class is used to pass data to event handlers
+     * The data is serialized to JSON and deserialized from JSON if they are passed 
+     * out of the local system 
+    */
     class EventArgs
     {
     public:
         EventArgs() = default;
         ~EventArgs() = default;
 
-        // Serialize to JSON
-        virtual std::string to_json() = 0;
+        /**
+         * @brief Get the type of the event arguments
+         * @details This method is used to identify the type of the event globally
+         * @return The type of the event arguments
+        */
+        virtual const char* getType() const { return "net.cobold.sys.event"; }
 
-        // Deserialize from JSON
-        virtual void from_json(std::string json) = 0;
+        /**
+         * @brief Serialize to JSON
+         * @details This method is used to serialize the event arguments to JSON
+         * @param pretty If the JSON string should be pretty printed (default: false)
+         * @return The JSON string 
+        */
+        virtual std::string toJson(bool pretty = false) = 0;
+
+        /**
+         * @brief Deserialize from JSON
+         * @details This method is used to deserialize the event arguments from JSON
+         * @param json The JSON string
+         * @return If the deserialization was successful
+        */
+        virtual bool fromJson(std::string json) = 0;
     };
 
     class Event

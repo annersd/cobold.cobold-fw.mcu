@@ -147,5 +147,11 @@ namespace cobold
         }
     }
 
+    void Application::raiseEvent(std::string source, cobold::sys::EventArgs* eventArgs)
+    {
+        raiseEvent(cobold::sys::Event::create<cobold::sys::EventArgs>(
+            source, eventArgs->getType(), eventArgs));
+    }
+
 
 } // namespace cobold

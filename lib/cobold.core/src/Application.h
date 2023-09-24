@@ -27,6 +27,7 @@ namespace cobold
         void run() override;
         void dispatch(std::function<void()> function) override;
         void raiseEvent(cobold::sys::Event* event) override;
+        void raiseEvent(std::string source, cobold::sys::EventArgs* eventArgs) override;
         void onLoop(application::OnLoopCallback callback) override;
         void onEvent(std::function<void(cobold::sys::Event*)> callback) override;
         void onDispatch(application::OnDispatchCallback callback) override;

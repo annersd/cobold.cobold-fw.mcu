@@ -18,8 +18,8 @@ namespace cobold::sys
         };
         Options(cobold::configuration::IConfiguration *configuration)
         {
+            this->parseConfiguration(configuration);
             this->configuration = configuration;
-            this->parseConfiguration();
         };
         ~Options() = default;
 
@@ -28,8 +28,8 @@ namespace cobold::sys
         */
         void updateConfiguration(cobold::configuration::IConfiguration *configuration)
         {
-            this->configuration = configuration;
             this->parseConfiguration(configuration);
+            this->configuration = configuration;
         };
 
         void log()
@@ -40,7 +40,7 @@ namespace cobold::sys
     protected:
         virtual void parseConfiguration(cobold::configuration::IConfiguration *configuration) {};
         virtual void logOptions() {};
-        cobold::configuration::IConfiguration *configuration;
+        cobold::configuration::IConfiguration *configuration = nullptr;
     };
 
 }

@@ -29,7 +29,12 @@ namespace cobold::sys
         void updateConfiguration(cobold::configuration::IConfiguration *configuration)
         {
             this->configuration = configuration;
-            this->parseConfiguration();
+            this->parseConfiguration(configuration);
+        };
+
+        void log()
+        {
+            this->logOptions();
         };
 
     protected:

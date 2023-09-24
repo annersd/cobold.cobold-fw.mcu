@@ -42,7 +42,7 @@ namespace cobold::sys
         {
             std::vector<EventHandler *> localHandlers = this->getItemsCopy();
 
-            logger->debug("[EventDispatcher] - Dispatching event: %s", event->getSource().c_str());
+            logger->info("[EventDispatcher] - Dispatching event: [%s].[%s]", event->getSource().c_str(), event->getType().c_str());
 
             // lookup registered event handler
 
@@ -78,7 +78,7 @@ namespace cobold::sys
 
             // Create a copy of the items
             std::vector<EventHandler *> copyItems = eventHandlers;
-            logger->debug("[EventDispatcher] - Copy %d Eventhandler(s) to immutable list", copyItems.size());
+            // logger->debug("[EventDispatcher] - Copy %d Eventhandler(s) to immutable list", copyItems.size());
 
             // Give back the mutex
             xSemaphoreGive(mutex);

@@ -23,7 +23,7 @@ namespace cobold::services
         auto eventDispatcher = app->getServices()->getService<cobold::sys::EventDispatcher>();
         app->onEvent([eventDispatcher, logger](cobold::sys::Event *event) -> void
                      { 
-                        logger->verbose("raiseEvent: %s", event->getSource().c_str());
+                        logger->verbose("[EventSvc] - raiseEvent: %s", event->getSource().c_str());
                         eventDispatcher->dispatch(event); 
                         });
     }

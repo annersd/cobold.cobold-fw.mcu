@@ -5,88 +5,100 @@
 #include <vector>
 #include "Object.h"
 
-namespace cobold
+namespace cobold::sys
 {
-    namespace sys
+
+    class EventArgs
     {
+    public:
+        EventArgs() = default;
+        ~EventArgs() = default;
 
-        class Event
+        // Serialize to JSON
+        virtual std::string to_json() = 0;
+
+        // Deserialize from JSON
+        virtual void from_json(std::string json) = 0;
+    };
+
+    class Event
+    {
+    protected:
+        /* data */
+        std::string source;
+        std::string type;
+        cobold::sys::BaseObject *data;
+
+    public:
+        Event(){};
+        Event(std::string source, std::string type, cobold::sys::BaseObject *data)
         {
-        private:
-            /* data */
-            std::string source;
-            std::string type;
-            cobold::sys::BaseObject *data;
-
-        public:
-            Event(std::string source, std::string type, cobold::sys::BaseObject *data)
-            {
-                this->source = source;
-                this->type = type;
-                this->data = data;
-            };
-
-            ~Event(){};
-
-            std::string getSource()
-            {
-                return this->source;
-            };
-
-            std::string getType()
-            {
-                return this->type;
-            };
-
-            cobold::sys::BaseObject *getData()
-            {
-                return this->data;
-            };
-
-            template <typename TEventData>
-            static Event *create(std::string source, std::string type, TEventData *data)
-            {
-                return new Event(source, type, new cobold::sys::Object<TEventData>(data));
-            };
+            this->source = source;
+            this->type = type;
+            this->data = data;
         };
 
-        class EventHandler
+        ~Event(){};
+
+        std::string getSource()
         {
-        private:
-            /* data */
-            std::string source;
-            std::string type;
-            std::function<void(Event *)> eventHandler;
+            return this->source;
+        };
 
-        public:
-            EventHandler(std::string source, std::function<void(Event *)> eventHandler)
-            {
-                this->source = source;
-                this->eventHandler = eventHandler;
-            };
+        std::string getType()
+        {
+            return this->type;
+        };
 
-            ~EventHandler(){};
+        cobold::sys::BaseObject *getData()
+        {
+            return this->data;
+        };
 
-            std::string getSource()
-            {
-                return this->source;
-            };
+        template <typename TEventData>
+        static Event *create(std::string source, std::string type, TEventData *data)
+        {
+            return new Event(source, type, new cobold::sys::Object<TEventData>(data));
+        };
+    };
 
-            std::string getType()
-            {
-                return this->type;
-            };
+    class EventHandler
+    {
+    private:
+        /* data */
+        std::string source;
+        std::string type;
+        std::function<void(Event *)> eventHandler;
 
-            std::function<void(Event *)> getEventHandler()
-            {
-                return this->eventHandler;
-            };
+    public:
+        EventHandler(std::string source, std::function<void(Event *)> eventHandler)
+        {
+            this->source = source;
+            this->eventHandler = eventHandler;
+        };
 
-            template <typename TEventData>
-            static EventHandler *create(std::string source, std::string type, std::function<void(TEventData *)> eventHandler)
-            {
-                return new EventHandler(source, [eventHandler](Event *event) -> void
-                                        {
+        ~EventHandler(){};
+
+        std::string getSource()
+        {
+            return this->source;
+        };
+
+        std::string getType()
+        {
+            return this->type;
+        };
+
+        std::function<void(Event *)> getEventHandler()
+        {
+            return this->eventHandler;
+        };
+
+        template <typename TEventData>
+        static EventHandler *create(std::string source, std::string type, std::function<void(TEventData *)> eventHandler)
+        {
+            return new EventHandler(source, [eventHandler](Event *event) -> void
+                                    {
                     auto eventData = cobold::sys::unwrap<TEventData>(event->getData());
                     if (eventData != nullptr)
                     {
@@ -96,8 +108,7 @@ namespace cobold
                     {
                         eventHandler(nullptr);
                     } });
-            };
         };
+    };
 
-    } // namespace sys
-} // namespace cobold
+} // namespace cobold::sys

@@ -34,6 +34,7 @@ namespace cobold::sys
 
     protected:
         virtual void parseConfiguration() {};
+        virtual void logConfiguration() {};
         cobold::configuration::IConfiguration *configuration;
     };
 

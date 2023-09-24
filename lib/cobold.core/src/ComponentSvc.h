@@ -66,6 +66,7 @@ namespace cobold::components
 
         void addComponent(IComponent *component)
         {
+            component->configure();
             logger->info("Add Component: %s", component->getName().c_str());
 
             components.push_back(component);

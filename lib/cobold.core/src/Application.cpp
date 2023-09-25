@@ -139,18 +139,13 @@ namespace cobold
         dispatchCallbacks.push_back(callback);
     }
 
-    void Application::raiseEvent(cobold::sys::Event* event)
+    void Application::raiseEvent(std::string source, cobold::sys::EventArgs* eventArgs)
     {
+        auto event = cobold::sys::Event::create<cobold::sys::EventArgs>(source, eventArgs->getType(), eventArgs);
         for (auto callback : eventCallbacks)
         {
             callback(event);
         }
-    }
-
-    void Application::raiseEvent(std::string source, cobold::sys::EventArgs* eventArgs)
-    {
-        raiseEvent(cobold::sys::Event::create<cobold::sys::EventArgs>(
-            source, eventArgs->getType(), eventArgs));
     }
 
 

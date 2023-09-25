@@ -118,7 +118,7 @@ namespace cobold::sys
         };
 
         template <typename TEventData>
-        static EventHandler *create(std::string source, std::string type, std::function<void(TEventData *)> eventHandler)
+        static EventHandler *create(std::string source, std::function<void(TEventData *)> eventHandler)
         {
             return new EventHandler(source, [eventHandler](Event *event) -> void
                                     {

@@ -49,7 +49,7 @@ namespace cobold::services
                 mqttServer->setClientId(mqttConfig->getValue("clientid").c_str());
 
                 mqttServer->onConnect([app, mqttConfig](bool sessionPresent) {
-                    app->raiseEvent(cobold::sys::Event::create("cobold.mqtt.connected", "void", ""));
+                    app->raiseEvent("cobold.mqtt.connected", new MqttConnectionEventArgs(true));
                     Serial.println("connected");
                     Serial.print("session present: ");
                     Serial.println(sessionPresent);
@@ -77,8 +77,7 @@ namespace cobold::services
                             mqttService->handleMqttMessage(topic, payload, properties, len, index, total);
                         }                        
 
-                        app->raiseEvent(cobold::sys::Event::create("cobold.mqtt.message", "string", 
-                        new MqttEventArgs(new std::string(topic), payload)));
+                        app->raiseEvent("cobold.mqtt.message", new MqttMessageEventArgs(topic, payload));
 
                         if (strcmp(topic, "cobold/host/ping") == 0)
                         {
@@ -91,7 +90,7 @@ namespace cobold::services
                         else if (strcmp(topic, "cobold/host/controller/schedule/message")  == 0)
                         {
                             auto payloadString = new std::string(payload);
-                            app->raiseEvent(cobold::sys::Event::create("cobold.mqtt.message", "string", payloadString));
+                            app->raiseEvent("cobold.mqtt.message", new MqttMessageEventArgs(topic, payload));
                         }
                        
                         
@@ -99,7 +98,7 @@ namespace cobold::services
                 });
 
                 mqttServer->onDisconnect([app](AsyncMqttClientDisconnectReason reason) {
-                    app->raiseEvent(cobold::sys::Event::create("cobold.mqtt.disconnected", "void", ""));
+                    app->raiseEvent("cobold.mqtt.disconnected", new MqttConnectionEventArgs(false));
                     
                     app->getServices()->getService<Scheduler>()->schedule(
                         4000, [app](const Scheduler::StateObject &state) -> void
@@ -135,5 +134,28 @@ namespace cobold::services
             });
 
         mqttClient->connect();
+
+        app->onEvent([mqttClient, logger](cobold::sys::Event *event) -> void
+                     { 
+                        logger->verbose("[MqttSvc] - onEvent: %s", event->getSource().c_str());
+                        
+                        auto mqttEventArgs = reinterpret_cast<cobold::sys::EventArgs*>(event->getData()->getObject());
+                        if (mqttEventArgs != nullptr)
+                        {
+                            logger->verbose(mqttEventArgs->toJson(true).c_str());
+                            mqttClient->publish(("cobold/echo/" + event->getSource()).c_str(), 0, false, mqttEventArgs->toJson(true).c_str());
+                        }
+
+                        // if (dynamic_cast<MqttEventArgs*>(event->getData()->getObject()) != nullptr)
+                        // {
+                        //     // auto mqttEventArgs = dynamic_cast<MqttEventArgs*>(event->getEventArgs());
+                        //     // mqttClient->publish(mqttEventArgs->getTopic()->c_str(), 0, false, mqttEventArgs->getPayload()->c_str());
+                        // }
+                        // else
+                        // {
+                        //     logger->verbose("[MqttSvc] - raiseEvent: %s", event->getSource().c_str());
+                        // }
+
+                        });
     }
 }

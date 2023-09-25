@@ -10,6 +10,36 @@
 
 namespace cobold::sys
 {
+    class NetworkChangedEventArgs : public EventArgs
+    {
+    public:
+        NetworkChangedEventArgs(bool connected)
+        {
+            this->connected = connected;
+        }
+
+        bool connected;
+
+        const char *getType() const override { return "net.cobold.services.network.changed"; }
+
+        std::string toJson(bool pretty = false) override
+        {
+            StaticJsonDocument<256> doc;
+            doc["connected"] = connected;
+            std::string json;
+            serializeJson(doc, json);
+            return json;
+        }
+
+        bool fromJson(std::string json) override
+        {
+            StaticJsonDocument<256> doc;
+            deserializeJson(doc, json);
+            connected = doc["connected"];
+
+            return true;
+        }
+    };
 
     /**
      * @brief Class for managing the network connection.
@@ -60,7 +90,7 @@ namespace cobold::sys
                 break;
             case SYSTEM_EVENT_STA_GOT_IP:
                 logger->info("[WiFi-event] WiFi connected; IP address: %s", WiFi.localIP().toString());
-                app->raiseEvent(cobold::sys::Event::create("cobold.network.connected", "void", ""));
+                app->raiseEvent("cobold.network.connected", new NetworkChangedEventArgs(true));
                 break;
             case SYSTEM_EVENT_STA_DISCONNECTED:
                 logger->info("[WiFi-event] WiFi lost connection");

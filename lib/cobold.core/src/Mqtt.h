@@ -13,7 +13,7 @@ namespace cobold::services
 {
     namespace mqtt
     {
-        typedef std::function<void(MqttEventArgs *eventargs)> OnMessageCallback;
+        typedef std::function<void(MqttMessageEventArgs *eventargs)> OnMessageCallback;
 
         struct MessageCallback
         {
@@ -60,17 +60,17 @@ namespace cobold::services
             {
                 if (std::regex_match(std::string(topic), std::regex(callback.topic)))
                 {
-                    callback.callback(new MqttEventArgs(new std::string(topic), payload));
+                    callback.callback(new MqttMessageEventArgs(topic, payload));
                 }
             }
 
             auto top = std::string(topic);
             top = std::regex_replace(top, std::regex(mqttNodePrefix), "$local/");
 
-            auto eventArgs = new MqttEventArgs(new std::string(top.c_str()), payload);
+            auto eventArgs = new MqttMessageEventArgs(top.c_str(), payload);
           
             logger->debug("Dispatching local event: %s", top.c_str());
-            app->raiseEvent(cobold::sys::Event::create("cobold.mqtt.message", "string", eventArgs));
+            app->raiseEvent("cobold.mqtt.message", eventArgs);
         }
 
         std::string getMqttNodePrefix()

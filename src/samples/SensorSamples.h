@@ -3,20 +3,45 @@
 #include "Cobold.hpp"
 #include "MqttEventArgs.h"
 
-struct Temperature
+class TemperatureEventArgs : public cobold::sys::EventArgs
 {
+public:
+  TemperatureEventArgs(float value)
+  {
+    this->value = value;
+  } 
+
+  const char *getType() const override { return "net.cobold.samples.temperature"; }
+
   float value;
+
+  std::string toJson(bool pretty = false) override
+  {
+    StaticJsonDocument<256> doc;
+    doc["value"] = value;
+    std::string json;
+    serializeJson(doc, json);
+    return json;
+  }
+
+  bool fromJson(std::string json) override
+  {
+    StaticJsonDocument<256> doc;
+    deserializeJson(doc, json);
+    value = doc["value"];
+
+    return true;
+  }
 };
 
-void createTempEventfromMqttMessage(MqttEventArgs *eventArgs)
+void createTempEventfromMqttMessage(MqttMessageEventArgs *eventArgs)
 {
   cobold::Logger *logger = cobold::app->getServices()->getService<cobold::Logger>();
   logger->debug("createTempEventfromMqttMessage");
   // if (eventArgs->topic == "cobold/temperature")
   {
     // decode json to Temperature struct
-    Temperature *temp = new Temperature();
-    temp->value = 0.0f;
+    auto *temp = new TemperatureEventArgs(0.0f);
 
     StaticJsonDocument<512> doc;
 
@@ -34,8 +59,7 @@ void createTempEventfromMqttMessage(MqttEventArgs *eventArgs)
     // Fetch values.
     temp->value = doc["value"];
 
-    cobold::app->raiseEvent(cobold::sys::Event::create("sensor1.temperature", "Temperature",
-                                                       new cobold::sys::Object<Temperature>(temp)));
+    cobold::app->raiseEvent("sensor1.temperature", temp);
   }
 }
 
@@ -47,33 +71,33 @@ void addEventSourcedTemperatureSensorSample()
 
   // Register event handler for the event 'cobold.mqtt.message'
   eventDispatcher->registerEventHandler(
-      cobold::sys::EventHandler::create<MqttEventArgs>("cobold.mqtt.message", "string", [](MqttEventArgs *eventData) -> void
+      cobold::sys::EventHandler::create<MqttMessageEventArgs>("cobold.mqtt.message", [](MqttMessageEventArgs *eventArgs) -> void
                                                        {
                                                         auto logger = cobold::app->getServices()->getService<cobold::Logger>();
 
                                                           // Your event handler code here
-                                                          if (eventData != nullptr)
+                                                          if (eventArgs != nullptr)
                                                           {
-                                                            if (strcmp(eventData->topic->c_str(), "$local/sensor1/temperature") == 0)
+                                                            if (strcmp(eventArgs->topic, "$local/sensor1/temperature") == 0)
                                                             {
 
                                                               logger->debug("Received data in event handler");
-                                                              logger->debug(eventData->topic->c_str());
-                                                              logger->debug(eventData->payload);
+                                                              logger->debug(eventArgs->topic);
+                                                              logger->debug(eventArgs->payload);
 
-                                                              createTempEventfromMqttMessage(eventData);
+                                                              createTempEventfromMqttMessage(eventArgs);
                                                             }
                                                           } }));
 
   // Register event handler for the event 'cobold.temperature'
-  eventDispatcher->registerEventHandler(cobold::sys::EventHandler::create<cobold::sys::Object<Temperature>>("sensor1.temperature", "Temperature", [](cobold::sys::Object<Temperature> *eventData) -> void
+  eventDispatcher->registerEventHandler(cobold::sys::EventHandler::create<TemperatureEventArgs>("sensor1.temperature", [](TemperatureEventArgs *eventArgs) -> void
                                                                                                             {
                                                                               // Your event handler code here
-                                                                              if (eventData != nullptr)
+                                                                              if (eventArgs != nullptr)
                                                                               {
                                                                                 // Check if 'data' is a valid pointer to a std::string
                                                                                 // Serial.println("Received data in event handler");
-                                                                                auto value = eventData->get()->value;
+                                                                                auto value = eventArgs->value;
                                                                                 Serial.println(value);
                                                                               } }));
 }

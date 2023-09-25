@@ -44,7 +44,6 @@ namespace cobold
         virtual void run() = 0;
 
         virtual void dispatch(std::function<void()> function) = 0;
-        virtual void raiseEvent(cobold::sys::Event* event) = 0;
         virtual void raiseEvent(std::string source, cobold::sys::EventArgs* eventArgs) = 0;
 
         virtual ServiceCollection *getServices() = 0;

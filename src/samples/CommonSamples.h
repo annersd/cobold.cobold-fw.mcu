@@ -19,15 +19,15 @@ void addCommonSample_ListenToAllMqttMessages()
 {
   cobold::app->getServices()
       ->getService<cobold::sys::EventDispatcher>()
-      ->registerEventHandler(cobold::sys::EventHandler::create<std::string>(
-          "cobold.mqtt.message", "string", [](std::string *eventData) -> void
+      ->registerEventHandler(cobold::sys::EventHandler::create<MqttMessageEventArgs>(
+          "cobold.mqtt.message", [](MqttMessageEventArgs *eventArgs) -> void
           {
               // Your event handler code here
-              if (eventData != nullptr)
+              if (eventArgs != nullptr)
               {
                 // Check if 'data' is a valid pointer to a std::string
                 Serial.println("Received data in event handler");
-                Serial.println(eventData->c_str());
+                Serial.println(eventArgs->payload);
               }
               else
               {

@@ -92,4 +92,9 @@ namespace cobold::services
     {
         return cobold::app->getServices()->getService<Logger>();
     }
+
+    cobold::LoggerShim *getLogger(const char *name)
+    {
+      return new cobold::LoggerShim(getLogger(), name);
+    }
 } // namespace cobold::services 

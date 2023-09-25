@@ -3,6 +3,7 @@
 #include "IApplication.h"
 #include "Logger.h"
 #include "Event.h"
+#include "LoggerShim.h"
 
 namespace cobold::sys
 {
@@ -14,22 +15,23 @@ namespace cobold::sys
         cobold::IApplication *app;
         std::vector<EventHandler *> eventHandlers;
         SemaphoreHandle_t mutex;
-        cobold::Logger *logger;
+        cobold::LoggerShim *logger;
 
     public:
         EventDispatcher(cobold::IApplication *app)
         {
             this->app = app;
-            this->logger = app->getServices()->getService<cobold::Logger>();
+            this->logger = new cobold::LoggerShim(
+                app->getServices()->getService<cobold::Logger>(), "EventDispatcher");
 
-            logger->debug("[EventDispatcher] - constructor");
+            logger->debug("constructor");
             this->mutex = xSemaphoreCreateMutex();
         };
         ~EventDispatcher(){};
 
         void registerEventHandler(cobold::sys::EventHandler *eventHandler)
         {
-            logger->debug("[EventDispatcher] - Registering event handler for event: %s", eventHandler->getSource().c_str());
+            logger->debug("Registering event handler for event: %s", eventHandler->getSource().c_str());
             xSemaphoreTake(this->mutex, portMAX_DELAY);
 
             // register event handler
@@ -42,7 +44,7 @@ namespace cobold::sys
         {
             std::vector<EventHandler *> localHandlers = this->getItemsCopy();
 
-            logger->info("[EventDispatcher] - Dispatching event: [%s].[%s]", event->getSource().c_str(), event->getType().c_str());
+            logger->info("Dispatching event: [%s].[%s]", event->getSource().c_str(), event->getType().c_str());
 
             // lookup registered event handler
 
@@ -64,7 +66,7 @@ namespace cobold::sys
                                     }
                                     catch(const std::exception& e)
                                     {
-                                        log->error("[EventDispatcher] - Exception in event handler: %s", e.what());
+                                        log->error(e, "Exception in event handler: %s", e.what());
                                     } });
                 }
             }

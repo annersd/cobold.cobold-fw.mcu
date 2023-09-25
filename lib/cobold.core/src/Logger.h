@@ -1,5 +1,7 @@
 #pragma once
 #include "ArduinoLog.h"
+#include <exception>
+#include "StreamRenderer.h"
 
 namespace cobold
 {

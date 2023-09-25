@@ -7,13 +7,13 @@ char deviceConfig[] PROGMEM = R"(
     {
       "node":
       {
-        "name": "p13501"
+        "name": "nid-fw-13501"
       },
       "mqtt":
       {
         "host": "192.168.0.69",
         "port": 1883,
-        "clientid": "node-p13501"
+        "clientid": "nid-fw-13501"
       },
       "network": 
       { 

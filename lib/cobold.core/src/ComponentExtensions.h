@@ -25,7 +25,7 @@ namespace cobold
             static std::vector<IComponent *> GetComponents(ServiceCollection *serviceCollection)
             {
                 std::vector<IComponent *> componentsList;
-                Logger *logger = serviceCollection->getService<Logger>();
+                SerialLogger *logger = serviceCollection->getService<SerialLogger>();
 
                 // Check the existing services map
                 for (auto it = serviceCollection->services.begin(); it != serviceCollection->services.end(); ++it)

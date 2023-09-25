@@ -54,7 +54,7 @@ namespace cobold::sys
     private:
         String ssid;
         String password;
-        cobold::Logger *logger;
+        cobold::SerialLogger *logger;
         cobold::IApplication *app;
         TimerHandle_t wifiReconnectTimer;
 
@@ -110,7 +110,7 @@ namespace cobold::sys
 
         void setup()
         {
-            logger = app->getServices()->getService<cobold::Logger>();
+            logger = app->getServices()->getService<cobold::SerialLogger>();
 
             wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0, [](TimerHandle_t xTimer) -> void
                                               {

@@ -11,6 +11,7 @@
 #include "TaskAppServices.h"
 #include "NodeAppServices.h"
 #include "ComponentAppServices.h"
+#include "LoggerAppServices.h"
 
 namespace cobold::application
 {
@@ -30,6 +31,7 @@ namespace cobold::application
         cobold::services::AddTaskService(app);
         cobold::services::AddEventService(app);
         cobold::services::AddSchedulerService(app);
+        cobold::services::AddLogService(app);
 
         cobold::services::AddNetworkService(app);
         cobold::services::AddMqttClientService(app);
@@ -41,7 +43,8 @@ namespace cobold::application
     void defaultSetup(IApplication *app)
     {
         app->setup();
-
+        
+        cobold::services::UseLogService(app);
         cobold::services::UseTaskService(app);
         cobold::services::UseEventService(app);
         cobold::services::UseSchedulerService(app);

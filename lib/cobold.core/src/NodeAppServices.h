@@ -14,7 +14,7 @@ namespace cobold::services
             services->addService<cobold::Node>([app](ServiceCollection *services) -> void *
                 { 
                     auto settings = app->getAppConfiguration()
-                        ->getSection("cobold.network.wifi");
+                        ->getSection("cobold.node");
 
                     return new cobold::Node(app,settings);
                   
@@ -23,7 +23,7 @@ namespace cobold::services
 
     void UseNodeService(cobold::IApplication *app)
     {
-        cobold::Logger *logger = app->getServices()->getService<cobold::Logger>();
+        cobold::SerialLogger *logger = app->getServices()->getService<cobold::SerialLogger>();
         cobold::Node *node = app->getServices()->getService<cobold::Node>();
 
         // Get the Network service

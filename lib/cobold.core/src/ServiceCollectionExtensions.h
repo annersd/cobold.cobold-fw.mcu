@@ -19,7 +19,7 @@ namespace cobold
             static std::vector<TServiceType *> GetServices(ServiceCollection *serviceCollection)
             {
                 std::vector<TServiceType *> servicesList;
-                Logger *logger = serviceCollection->getService<Logger>();
+                SerialLogger *logger = serviceCollection->getService<SerialLogger>();
 
                 // Check the existing services map
                 for (auto it = serviceCollection->services.begin(); it != serviceCollection->services.end(); ++it)

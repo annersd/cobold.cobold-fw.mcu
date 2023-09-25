@@ -1,18 +1,23 @@
 #pragma once
 
 #include "Cobold.hpp"
+#include "Node.h"
 
 void addCommonSample_HostRunning()
 {
   auto mqttClient = cobold::app->getServices()->getService<AsyncMqttClient>();
 
-  cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
-      1000, [mqttClient](const Scheduler::StateObject &state) -> void
-      { 
-        Serial.println("...alive..."); 
-        
-      mqttClient->publish("cobold/host/running", 0, false, "still running"); },
-      "HelloWorld", 10000, Scheduler::StateObject());
+  // cobold::app->getServices()->getService<Scheduler>()->scheduleInterval(
+  //     1000, [mqttClient](const Scheduler::StateObject &state) -> void
+  //     { 
+  //       // Serial.println("...alive..."); 
+
+
+  //       std::string msg = "still running. Heap: " + std::to_string(ESP.getFreeHeap());
+  //       mqttClient->publish(
+  //         ("cobold/" + cobold::app->getServices()->getService<cobold::Node>()->name + "/host/running").c_str()
+  //         , 0, false, msg.c_str()); },
+  //     "HelloWorld", 10000, Scheduler::StateObject());
 }
 
 void addCommonSample_ListenToAllMqttMessages()
@@ -43,22 +48,24 @@ void addDynamicComponent()
     auto componentSvc = cobold::app->getServices()->getService<cobold::components::ComponentSvc>();
     auto component = new cobold::components::DynamicComponent<int>();
 
+    auto logger = cobold::app->getServices()->getService<cobold::LoggerFactory>()->getLogger("Dynamic Component");
+
     // Bind initialize, update, and configure functions with lambdas that accept DynamicComponent by reference
-    component->bind_initialize([](cobold::components::DynamicComponent<int>* componentInstance) -> void
+    component->bind_initialize([logger](cobold::components::DynamicComponent<int>* componentInstance) -> void
     {
-        Serial.println("DynamicComponent initialized");
+        logger->info("DynamicComponent initialized");
     });
 
-    component->bind_update([](cobold::components::DynamicComponent<int>* componentInstance) -> void
+    component->bind_update([logger](cobold::components::DynamicComponent<int>* componentInstance) -> void
     {
-        Serial.println("DynamicComponent updated");
+        logger->info("DynamicComponent updated");
     });
 
-    component->bind_configure([](cobold::components::DynamicComponent<int>* componentInstance) -> void
+    component->bind_configure([logger](cobold::components::DynamicComponent<int>* componentInstance) -> void
     {
         componentInstance->setName("DynamicComponent");
         componentInstance->setId("DynamicComponent");
-        Serial.println("DynamicComponent configured");
+        logger->info("DynamicComponent configured");
 
         componentInstance->bound_object = new cobold::sys::Object<int>(new int(42));
     });

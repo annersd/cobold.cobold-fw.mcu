@@ -173,6 +173,7 @@ namespace cobold::sys
             this->stream = new MemoryStream();
             this->mutex = xSemaphoreCreateMutex();
         }
+        ~StreamRenderer() = default;
 
         template <class T>
         const char *render(T msg, ...)
@@ -183,7 +184,32 @@ namespace cobold::sys
             va_start(args, msg);
             print(msg, args);
             va_end(args);
-            const char *result = (new std::string(reinterpret_cast<char *>(stream->buffer)))->c_str();
+
+            std::string castet = std::string(reinterpret_cast<char *>(stream->buffer));
+            const char *source = castet.c_str();
+
+            // Calculate the length of the source string
+            size_t sourceLength = strlen(source);
+
+            // Allocate memory for the new buffer on the heap (+1 for the null terminator)
+            char *result = static_cast<char *>(malloc(sourceLength + 1));
+
+            // Check if memory allocation was successful
+            if (result != nullptr)
+            {
+                // Copy the content of the source string to the new buffer
+                strcpy(result, source);
+
+                // Now 'result' contains a copy of the string on the heap
+
+                // Don't forget to free the memory when you're done with it
+                // free(result);
+            }
+            else
+            {
+                // Handle memory allocation failure
+            }
+
             stream->clear();
 
             xSemaphoreGive(mutex);

@@ -7,13 +7,15 @@
 #include <AsyncMqttClient.h>
 #include "Mqtt.h"
 #include <string>
-
+#include "LoggerFactory.h"
+#include "MqttLogger.h"
+#include "Node.h"
 namespace cobold::services
 {
 
     void AddMqttClientService(cobold::IApplication *app)
     {
-        
+
         app->getHostBuilder()->configureServices([app](ServiceCollection *services) -> void
                                                  {
             //                                         auto logger = app->getServices()->getService<cobold::Logger>();
@@ -122,40 +124,57 @@ namespace cobold::services
 
     void UseMqttClientService(cobold::IApplication *app)
     {
-        auto logger = app->getServices()->getService<cobold::Logger>();
+        auto logger = app->getServices()->getService<cobold::SerialLogger>();
         logger->info("Setup MQTT Client Service");
 
         auto mqttClient = app->getServices()->getService<AsyncMqttClient>();
 
         mqttClient->onConnect([mqttClient](bool sessionPresent)
-            {
+                              {
                 mqttClient->setWill("cobold/host/connected", 0, true, "false");
-                mqttClient->publish("cobold/host/isconnected", 0, false, "true"); 
-            });
+                mqttClient->publish("cobold/host/isconnected", 0, false, "true"); });
 
         mqttClient->connect();
 
-        app->onEvent([mqttClient, logger](cobold::sys::Event *event) -> void
-                     { 
-                        logger->verbose("[MqttSvc] - onEvent: %s", event->getSource().c_str());
-                        
-                        auto mqttEventArgs = reinterpret_cast<cobold::sys::EventArgs*>(event->getData()->getObject());
-                        if (mqttEventArgs != nullptr)
-                        {
-                            logger->verbose(mqttEventArgs->toJson(true).c_str());
-                            mqttClient->publish(("cobold/echo/" + event->getSource()).c_str(), 0, false, mqttEventArgs->toJson(true).c_str());
-                        }
+        auto node = app->getServices()->getService<cobold::Node>();
+        app->onEvent([mqttClient, logger, node](cobold::sys::Event *event) -> void
+                     {
+                         logger->verbose("[MqttSvc] - onEvent: %s", event->getSource().c_str());
 
-                        // if (dynamic_cast<MqttEventArgs*>(event->getData()->getObject()) != nullptr)
-                        // {
-                        //     // auto mqttEventArgs = dynamic_cast<MqttEventArgs*>(event->getEventArgs());
-                        //     // mqttClient->publish(mqttEventArgs->getTopic()->c_str(), 0, false, mqttEventArgs->getPayload()->c_str());
-                        // }
-                        // else
-                        // {
-                        //     logger->verbose("[MqttSvc] - raiseEvent: %s", event->getSource().c_str());
-                        // }
+                         auto mqttEventArgs = reinterpret_cast<cobold::sys::EventArgs *>(event->getData()->getObject());
+                         if (mqttEventArgs != nullptr)
+                         {
+                             logger->verbose(mqttEventArgs->toJson(true).c_str());
+                             mqttClient->publish(("cobold/"+ node->name + "/host/events/echo/" + event->getSource()).c_str(), 0, false, mqttEventArgs->toJson(true).c_str());
+                         }
 
-                        });
+                         // if (dynamic_cast<MqttEventArgs*>(event->getData()->getObject()) != nullptr)
+                         // {
+                         //     // auto mqttEventArgs = dynamic_cast<MqttEventArgs*>(event->getEventArgs());
+                         //     // mqttClient->publish(mqttEventArgs->getTopic()->c_str(), 0, false, mqttEventArgs->getPayload()->c_str());
+                         // }
+                         // else
+                         // {
+                         //     logger->verbose("[MqttSvc] - raiseEvent: %s", event->getSource().c_str());
+                         // }
+                     });
+
+        auto loggerFactory = app->getServices()->getService<cobold::LoggerFactory>();
+
+        loggerFactory->onLogMessage.clear();
+        auto mqttLogger = new MqttLogger(app, mqttClient);
+        loggerFactory->onLogMessage.add([mqttLogger](LogMessage *event) -> void
+                                        { mqttLogger->handleLogMessage(event); });
+
+        auto scheduler = app->getServices()->getService<Scheduler>();
+        scheduler->scheduleInterval(
+            5000, [mqttClient, node](const Scheduler::StateObject &state) -> void
+            { 
+
+                std::string msg = "Status. Heap: " + std::to_string(ESP.getFreeHeap());
+                mqttClient->publish(
+                    ("cobold/"+ node->name +"/host/status").c_str()
+                    , 0, false, msg.c_str()); },
+            "host/status", 5000, Scheduler::StateObject());
     }
 }

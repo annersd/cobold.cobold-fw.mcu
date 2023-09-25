@@ -88,13 +88,13 @@ namespace cobold::services
         return cobold::app->getServices()->getService<TService>();
     }
 
-    cobold::Logger *getLogger()
+    cobold::SerialLogger *getLogger()
     {
-        return cobold::app->getServices()->getService<Logger>();
+        return cobold::app->getServices()->getService<SerialLogger>();
     }
 
-    cobold::LoggerShim *getLogger(const char *name)
+    cobold::Logger *getLogger(const char *name)
     {
-      return new cobold::LoggerShim(getLogger(), name);
+      return new cobold::Logger(name);
     }
 } // namespace cobold::services 

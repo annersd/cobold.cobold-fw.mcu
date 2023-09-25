@@ -42,7 +42,7 @@ namespace cobold
         cobold::hosting::IHost *host;
         cobold::hosting::IHostBuilder *hostBuilder;
         cobold::configuration::IConfiguration *configuration;
-        Logger *logger;
+        SerialLogger *logger;
         std::vector<application::OnLoopCallback> loopCallbacks;
         std::vector<std::function<void(cobold::sys::Event*)>> eventCallbacks;
         std::vector<std::function<void(const std::function<void(void)>& op)>> dispatchCallbacks;

@@ -17,7 +17,7 @@ namespace cobold::services
 
     void UseEventService(cobold::IApplication *app)
     {
-        auto logger = app->getServices()->getService<cobold::Logger>();
+        auto logger = app->getServices()->getService<cobold::SerialLogger>();
         logger->info("Setup EventDispatcher");
 
         auto eventDispatcher = app->getServices()->getService<cobold::sys::EventDispatcher>();

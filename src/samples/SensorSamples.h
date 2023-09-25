@@ -36,7 +36,7 @@ public:
 
 void createTempEventfromMqttMessage(MqttMessageEventArgs *eventArgs)
 {
-  cobold::Logger *logger = cobold::app->getServices()->getService<cobold::Logger>();
+  cobold::SerialLogger *logger = cobold::app->getServices()->getService<cobold::SerialLogger>();
   logger->debug("createTempEventfromMqttMessage");
   // if (eventArgs->topic == "cobold/temperature")
   {
@@ -73,7 +73,7 @@ void addEventSourcedTemperatureSensorSample()
   eventDispatcher->registerEventHandler(
       cobold::sys::EventHandler::create<MqttMessageEventArgs>("cobold.mqtt.message", [](MqttMessageEventArgs *eventArgs) -> void
                                                        {
-                                                        auto logger = cobold::app->getServices()->getService<cobold::Logger>();
+                                                        auto logger = cobold::app->getServices()->getService<cobold::SerialLogger>();
 
                                                           // Your event handler code here
                                                           if (eventArgs != nullptr)

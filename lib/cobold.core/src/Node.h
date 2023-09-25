@@ -13,7 +13,7 @@ namespace cobold
     {
     private:
         /* data */
-        std::string name;
+        
         IApplication *app;
         cobold::configuration::IConfiguration *config;
 
@@ -30,5 +30,7 @@ namespace cobold
         void setup(){
 
         };
+
+        std::string name;
     };
 }

@@ -17,7 +17,7 @@ namespace cobold::services
 
     void UseSchedulerService(cobold::IApplication *app)
     {
-        auto logger = app->getServices()->getService<cobold::Logger>();
+        auto logger = app->getServices()->getService<cobold::SerialLogger>();
         logger->info("Setup Scheduler");
 
         auto scheduler = app->getServices()->getService<Scheduler>();

@@ -29,7 +29,7 @@ namespace cobold
             {
                 Serial.println("HostingExtensions::GetHostedServices");
                 std::vector<cobold::hosting::IHostedService *> servicesList;
-                Logger *logger = serviceCollection->getService<cobold::Logger>();
+                SerialLogger *logger = serviceCollection->getService<cobold::SerialLogger>();
 
                 // Check the existing services map
                 for (auto it = serviceCollection->services.begin(); it != serviceCollection->services.end(); ++it)

@@ -58,7 +58,7 @@ namespace cobold
         services = host->getServices();
 
         // Get the logger
-        logger = services->getService<Logger>();
+        logger = services->getService<SerialLogger>();
 
     }
 

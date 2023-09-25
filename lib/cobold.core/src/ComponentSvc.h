@@ -20,7 +20,7 @@ namespace cobold::components
     public:
 
         ComponentSvc(cobold::IApplication *app) : app(app) {
-            logger = app->getServices()->getService<cobold::Logger>();
+            logger = app->getServices()->getService<cobold::LoggerFactory>()->getLogger("cobold.components");
             logger->info("Create Component Service");
             components = std::vector<IComponent *>();
         }

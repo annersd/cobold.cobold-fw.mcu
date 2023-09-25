@@ -17,7 +17,7 @@ namespace cobold::services
 
     void UseTaskService(cobold::IApplication *app)
     {
-        auto logger = app->getServices()->getService<cobold::Logger>();
+        auto logger = app->getServices()->getService<cobold::SerialLogger>();
         logger->info("Setup Task");
 
         auto task = app->getServices()->getService<cobold::sys::TaskDispatcher>();

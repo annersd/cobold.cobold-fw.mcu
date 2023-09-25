@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "Event.h"
 #include "LoggerShim.h"
+#include "LoggerFactory.h"
 
 namespace cobold::sys
 {
@@ -15,14 +16,13 @@ namespace cobold::sys
         cobold::IApplication *app;
         std::vector<EventHandler *> eventHandlers;
         SemaphoreHandle_t mutex;
-        cobold::LoggerShim *logger;
+        cobold::Logger *logger;
 
     public:
         EventDispatcher(cobold::IApplication *app)
         {
             this->app = app;
-            this->logger = new cobold::LoggerShim(
-                app->getServices()->getService<cobold::Logger>(), "EventDispatcher");
+            this->logger = app->getServices()->getService<cobold::LoggerFactory>()->getLogger("EventDispatcher");
 
             logger->debug("constructor");
             this->mutex = xSemaphoreCreateMutex();

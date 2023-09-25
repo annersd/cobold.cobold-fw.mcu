@@ -5,13 +5,13 @@
 
 namespace cobold
 {
-    class Logger
+    class SerialLogger
     {
     private:
         SemaphoreHandle_t mutex;
 
     public:
-        Logger()
+        SerialLogger()
         {
             this->mutex = xSemaphoreCreateMutex();
         }

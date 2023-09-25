@@ -62,7 +62,7 @@ public:
     Scheduler(cobold::IApplication *app)
     {
         this->app = app;
-        logger = app->getServices()->getService<cobold::Logger>();
+        logger = app->getServices()->getService<cobold::SerialLogger>();
 
         // Create a mutex to protect access to the items vector
         itemsMutex = xSemaphoreCreateMutex();
@@ -77,14 +77,14 @@ public:
     // Schedule a scheduleFunc to run after a certain delay (in milliseconds)
     void schedule(uint32_t delayMs, const ScheduleFunc &scheduleFunc, const std::string &name, uint32_t timeout, const StateObject &state)
     {
-        SchedulerItem item = {name, SchedulerItem::TIMEOUT, timeout, millis() + delayMs, scheduleFunc, state};
+        SchedulerItem *item = new SchedulerItem{name, SchedulerItem::TIMEOUT, timeout, millis() + delayMs, scheduleFunc, state};
         addItem(item);
     }
 
     // Schedule a scheduleFunc to run at intervals (in milliseconds)
-    void scheduleInterval(uint32_t intervalMs, const ScheduleFunc &scheduleFunc, const std::string &name, uint32_t interval, const StateObject &state)
+    void scheduleInterval(uint32_t delayMs, const ScheduleFunc &scheduleFunc, const std::string &name, uint32_t interval, const StateObject &state)
     {
-        SchedulerItem item = {name, SchedulerItem::INTERVAL, interval, millis() + intervalMs, scheduleFunc, state};
+        SchedulerItem *item = new SchedulerItem{name, SchedulerItem::INTERVAL, interval, millis() + delayMs, scheduleFunc, state};
         addItem(item);
     }
 
@@ -94,6 +94,7 @@ public:
         // logger->debug("Scheduler run");
 
         uint32_t currentMillis = millis();
+        // logger->debug("Current millis %d", currentMillis);
 
         /*  Get a copy of the items
          *  This is done to avoid locking the mutex for too long
@@ -105,25 +106,30 @@ public:
 
         for (auto it = copiedItems.begin(); it != copiedItems.end();)
         {
-            if (currentMillis >= it->executionTime)
+            if (currentMillis >= (*it)->executionTime)
             {
+                // logger->debug("Executing item %s at %d", (*it)->name.c_str(), (*it)->executionTime);
 
                 /* run the scheduleFunc
-                *  We execute the function not in a scheduleFunc dispatcher.
-                *  This means, that the scheduleFunc will run in the same context as the scheduler.
-                *  By doing this we prevent flooding the scheduleFunc dispatcher with tasks and
-                *  reduce the psoibility to exhaust the device resources.
-                */
-                it->scheduleFunc(it->stateObj);
+                 *  We execute the function not in a scheduleFunc dispatcher.
+                 *  This means, that the scheduleFunc will run in the same context as the scheduler.
+                 *  By doing this we prevent flooding the scheduleFunc dispatcher with tasks and
+                 *  reduce the psoibility to exhaust the device resources.
+                 */
+                (*it)->scheduleFunc((*it)->stateObj);
 
-                if (it->type == SchedulerItem::INTERVAL)
+                if ((*it)->type == SchedulerItem::INTERVAL)
                 {
-                    it->executionTime = currentMillis + it->interval;
+                    (*it)->executionTime = currentMillis + (*it)->interval;
+                    // logger->debug("Interval item %s every %d", (*it)->name.c_str(), (*it)->interval);
+                    // logger->debug("Rescheduling item %s on %d", (*it)->name.c_str(), (*it)->executionTime);
+
+                    // updateExecutionTime(it->uuid.toCharArray(), it->executionTime);
                 }
                 else
                 {
                     // Delete the item from the original vector
-                    deleteItemByID(it->uuid.toCharArray());
+                    deleteItemByID((*it)->uuid.toCharArray());
                 }
                 ++it;
             }
@@ -143,7 +149,7 @@ public:
         auto it = items.begin();
         while (it != items.end())
         {
-            if (it->name == name)
+            if ((*it)->name == name)
             {
                 it = items.erase(it);
             }
@@ -157,30 +163,7 @@ public:
         xSemaphoreGive(itemsMutex);
     }
 
-    // Method to delete a scheduler item by reference
-    void deleteItemByReference(const SchedulerItem &item)
-    {
-        // Take the mutex to protect access to the items vector
-        xSemaphoreTake(itemsMutex, portMAX_DELAY);
-
-        auto it = items.begin();
-        while (it != items.end())
-        {
-            if (&(*it) == &item)
-            {
-                Serial.println("Deleting item");
-                it = items.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-
-        // Give back the mutex
-        xSemaphoreGive(itemsMutex);
-    }
-
+   
     // Method to delete a scheduler item by reference
     void deleteItemByID(char *uuid)
     {
@@ -190,9 +173,10 @@ public:
         auto it = items.begin();
         while (it != items.end())
         {
-            if (strcmp(it->uuid.toCharArray(), uuid) == 0)
+            if (strcmp((*it)->uuid.toCharArray(), uuid) == 0)
             {
-                it = items.erase(it);
+                delete *it;           // Delete the SchedulerItem object
+                it = items.erase(it); // Remove the pointer from the vector
             }
             else
             {
@@ -205,14 +189,14 @@ public:
     }
 
 private:
-    std::vector<SchedulerItem> items;
+    std::vector<SchedulerItem *> items;
     SemaphoreHandle_t itemsMutex;
-    cobold::Logger *logger;
+    cobold::SerialLogger *logger;
     cobold::IApplication *app;
 
-    void addItem(const SchedulerItem &item)
+    void addItem(SchedulerItem *item)
     {
-        logger->debug("Adding item %s", item.name.c_str());
+        logger->debug("Adding item %s", item->name.c_str());
         // Take the mutex to protect access to the items vector
         xSemaphoreTake(itemsMutex, portMAX_DELAY);
         items.push_back(item);
@@ -221,17 +205,34 @@ private:
     }
 
     // Method to get a copy of the available items
-    std::vector<SchedulerItem> getItemsCopy()
+    std::vector<SchedulerItem *> getItemsCopy()
     {
         // Take the mutex to protect access to the items vector
         xSemaphoreTake(itemsMutex, portMAX_DELAY);
 
         // Create a copy of the items
-        std::vector<SchedulerItem> copyItems = items;
+        std::vector<SchedulerItem *> copyItems = items;
 
         // Give back the mutex
         xSemaphoreGive(itemsMutex);
 
         return copyItems;
+    }
+
+    void updateExecutionTime(char *uuid, uint32_t currentMillis)
+    {
+        // Take the mutex to protect access to the items vector
+        xSemaphoreTake(itemsMutex, portMAX_DELAY);
+
+        for (auto &item : items)
+        {
+            if (strcmp(item->uuid.toCharArray(), uuid) == 0)
+            {
+                item->executionTime = currentMillis + item->interval;
+            }
+        }
+
+        // Give back the mutex
+        xSemaphoreGive(itemsMutex);
     }
 };

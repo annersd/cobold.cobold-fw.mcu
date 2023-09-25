@@ -16,7 +16,7 @@
 class ServiceCollection
 {
 public:
-    ServiceCollection(cobold::Logger *logger)
+    ServiceCollection(cobold::SerialLogger *logger)
     {
         this->logger = logger;
         logger->verbose("ServiceCollection constructor");
@@ -167,5 +167,5 @@ public:
     std::map<cobold::sys::BaseObject *, std::function<void *()>> services = {};
     std::map<cobold::sys::BaseObject *, std::function<void *(ServiceCollection *)>> constructorMap = {};
     private:
-    cobold::Logger *logger;
+    cobold::SerialLogger *logger;
 };

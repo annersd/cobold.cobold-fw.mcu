@@ -30,7 +30,7 @@ namespace cobold::services
         cobold::configuration::IConfiguration *mqttConfig;
         cobold::IApplication *app;
         std::vector<mqtt::MessageCallback> onMessageCallbacks;
-        cobold::Logger *logger;
+        cobold::SerialLogger *logger;
 
         std::string mqttPrefix = "cobold/";
         std::string mqttNodePrefix = "";
@@ -40,7 +40,7 @@ namespace cobold::services
         {
             this->app = app;
             this->mqttConfig = mqttConfig;
-            this->logger = app->getServices()->getService<cobold::Logger>();
+            this->logger = app->getServices()->getService<cobold::SerialLogger>();
 
             mqttNodePrefix = mqttPrefix + mqttConfig->getValue("clientid") + "/";
 

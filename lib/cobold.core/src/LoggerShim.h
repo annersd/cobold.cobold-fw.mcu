@@ -2,8 +2,8 @@
 
 #include <Arduino.h>
 #include <exception>
-#include "Logger.h"
 #include "StreamRenderer.h"
+#include "Delegates.h"
 
 namespace cobold
 {
@@ -17,6 +17,10 @@ namespace cobold
             this->message = message;
             this->exception = exception;
         }
+        ~LogMessage()
+        {
+            free((void *)this->message);
+        }
 
         const char *name;
         int level;
@@ -24,12 +28,10 @@ namespace cobold
         std::exception *exception;
     };
 
-    class LoggerShim
+    class Logger
     {
     protected:
-        Logger *logger;
         const char *name;
-
         static cobold::sys::StreamRenderer renderer;
 
         LogMessage createLogMessage(const char *name, int level, const char *message)
@@ -38,15 +40,11 @@ namespace cobold
             return event;
         }
 
-        void publishLogMessage(LogMessage *event)
-        {
-            Serial.println(event->message);
-        }
-
     public:
-        LoggerShim(Logger *logger, const char *name)
+        cobold::sys::ActionDelegate<LogMessage *> onLogMessage;
+
+        Logger(const char *name)
         {
-            this->logger = logger;
             this->name = name;
         }
 
@@ -55,59 +53,67 @@ namespace cobold
         void fatal(T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_FATAL, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
 
         template <class T, typename... Args>
         void fatal(std::exception ex, T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_FATAL, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
 
         template <class T, typename... Args>
         void error(T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_ERROR, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
 
         template <class T, typename... Args>
         void error(std::exception ex, T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_ERROR, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
 
         template <class T, typename... Args>
         void warning(T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_WARNING, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
 
         template <class T, typename... Args>
         void info(T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_INFO, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
 
         template <class T, typename... Args>
         void debug(T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_TRACE, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
 
         template <class T, typename... Args>
         void verbose(T msg, Args... args)
         {
             auto event = new LogMessage(name, LOG_LEVEL_VERBOSE, renderer.render(msg, args...));
-            publishLogMessage(event);
+            onLogMessage.invoke(event);
+            delete event;
         }
     };
 
-    cobold::sys::StreamRenderer LoggerShim::renderer = cobold::sys::StreamRenderer();
-    
+    cobold::sys::StreamRenderer Logger::renderer = cobold::sys::StreamRenderer();
+
 } // namespace cobold

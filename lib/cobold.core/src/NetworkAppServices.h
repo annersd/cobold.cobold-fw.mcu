@@ -26,7 +26,7 @@ namespace cobold::services
 
     void UseNetworkService(cobold::IApplication *app)
     {
-        cobold::Logger *logger = app->getServices()->getService<cobold::Logger>();
+        cobold::SerialLogger *logger = app->getServices()->getService<cobold::SerialLogger>();
         cobold::sys::Network *network = app->getServices()->getService<cobold::sys::Network>();
 
         // Get the Network service

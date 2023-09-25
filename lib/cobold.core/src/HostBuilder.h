@@ -35,7 +35,7 @@ namespace cobold
             // Initialize with log level and log output.
             Log.begin(LOG_LEVEL_VERBOSE, &Serial);
 
-            serviceCollection = new ServiceCollection(new Logger());
+            serviceCollection = new ServiceCollection(new SerialLogger());
             configuration = new cobold::configuration::Configuration();
         }
 
@@ -63,8 +63,8 @@ namespace cobold
             serviceCollection->addService<Logging>([](ServiceCollection *services) -> void *
                                                    { return &Log; });
 
-            serviceCollection->addService<Logger>([](ServiceCollection *services) -> void *
-                                                   { return new Logger(); });
+            serviceCollection->addService<SerialLogger>([](ServiceCollection *services) -> void *
+                                                   { return new SerialLogger(); });
             Log.verbose("HostBuilder::build() - Building Services Collection...");
 
             serviceCollection->addService<cobold::configuration::IConfiguration>(configuration);
@@ -80,7 +80,7 @@ namespace cobold
                 serviceConfigLambda(serviceCollection);
             }
 
-            Logger *logger = serviceCollection->getService<Logger>();
+            SerialLogger *logger = serviceCollection->getService<SerialLogger>();
             logger->verbose("HostBuilder::build() - Services Collection built...");
 
             logger->verbose("HostBuilder::build() - Creating Host...");

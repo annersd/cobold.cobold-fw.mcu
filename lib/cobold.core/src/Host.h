@@ -15,7 +15,7 @@ namespace cobold
         private:
             /* data */
             ServiceCollection *serviceCollection;
-            Logger *logger;
+            SerialLogger *logger;
 
         public:
             explicit Host(ServiceCollection *serviceCollection);
@@ -28,7 +28,7 @@ namespace cobold
         Host::Host(ServiceCollection *serviceCollection)
         {
             this->serviceCollection = serviceCollection;
-            logger = serviceCollection->getService<Logger>();
+            logger = serviceCollection->getService<SerialLogger>();
         }
 
         Host::~Host()

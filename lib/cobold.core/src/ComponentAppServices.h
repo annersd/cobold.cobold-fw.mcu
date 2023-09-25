@@ -16,7 +16,7 @@ namespace cobold::services
 
     void UseComponentService(cobold::IApplication *app)
     {
-        auto logger = app->getServices()->getService<cobold::Logger>();
+        auto logger = app->getServices()->getService<cobold::SerialLogger>();
         logger->info("Setup Compoent Service");
 
         auto componentSvc = app->getServices()->getService<cobold::components::ComponentSvc>();
